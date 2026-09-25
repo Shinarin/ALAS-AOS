@@ -23,12 +23,6 @@ class UiTextArityTest {
         check(CALL_STRING, placeholderCounts("string"), "uiTextOf")
     }
 
-    @Test
-    fun `每个 uiTextPlural 调用点的参数个数与占位符数量一致`() {
-        // 首个参数是选形数，不填占位符，比对时要去掉
-        check(CALL_PLURAL, placeholderCounts("plurals"), "uiTextPlural", leadingNonFormatArgs = 1)
-    }
-
     private fun check(
         pattern: Regex,
         expected: Map<String, Int>,
@@ -196,7 +190,6 @@ class UiTextArityTest {
     private companion object {
         const val BACKSLASH = '\\'
         val CALL_STRING = Regex("""uiTextOf\(\s*R\.string\.(\w+)""")
-        val CALL_PLURAL = Regex("""uiTextPlural\(\s*R\.plurals\.(\w+)""")
         val PLACEHOLDER = Regex("""%(\d+)\$[sd]""")
     }
 }

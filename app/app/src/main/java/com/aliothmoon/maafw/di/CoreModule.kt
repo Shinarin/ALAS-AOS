@@ -10,7 +10,6 @@ import com.aliothmoon.maafw.config.UserConfigurationSerializer
 import com.aliothmoon.maafw.config.UserConfigurationStore
 import com.aliothmoon.maafw.constant.DataStoreFile
 import com.aliothmoon.maafw.domain.UserConfiguration
-import com.aliothmoon.maafw.i18n.LocalizedTextRenderer
 import com.aliothmoon.maafw.settings.AppSettingsGateway
 import com.aliothmoon.maafw.settings.AppSettingsManager
 import kotlinx.coroutines.CoroutineExceptionHandler
@@ -45,6 +44,4 @@ val coreModule = module {
 
     single { AppSettingsManager(androidContext()) }
     single<AppSettingsGateway> { get<AppSettingsManager>() }
-
-    single { LocalizedTextRenderer(androidContext()) }
 }

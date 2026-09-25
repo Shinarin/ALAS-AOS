@@ -53,7 +53,7 @@ class UiTextBoundaryTest {
             }
 
         assertTrue(
-            "直接构造了 UiText.Verbatim，改用 uiTextFromProject / uiTextFromFramework / uiTextFormatted：\n" +
+            "直接构造了 UiText.Verbatim，改用 uiTextFromFramework / uiTextFormatted：\n" +
                 offenders.joinToString("\n"),
             offenders.isEmpty(),
         )

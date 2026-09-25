@@ -9,8 +9,8 @@ private const val SHIZUKU_PACKAGE = "moe.shizuku.privileged.api"
 /**
  * app 级设置，与 `UserConfiguration` 分开存
  *
- * `UserConfiguration` 是运行配置的聚合根，走 schemaVersion 信封 + 版本不符即重置；
- * 提权后端这类设置不该跟着运行配置一起被重置，所以另起一个 Preferences DataStore
+ * `UserConfiguration` 走 schemaVersion 信封 + 版本不符即重置；
+ * 提权后端这类设置不该跟着它一起被重置，所以另起一个 Preferences DataStore
  *
  * 字段一律声明成 String：`@PrefSchema` 生成的 key 按字段类型选 preferencesKey，
  * 枚举与布尔都以文本落盘，改默认值不会让老数据变成非法值（见 [AppSettingsManager] 的解析）

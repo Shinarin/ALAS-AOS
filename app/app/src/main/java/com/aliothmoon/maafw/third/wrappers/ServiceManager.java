@@ -28,7 +28,6 @@ public final class ServiceManager {
     private static DisplayManager displayManager;
     private static InputManager inputManager;
     private static PowerManager powerManager;
-    private static StatusBarManager statusBarManager;
     private static ActivityManager activityManager;
     private static CameraManager cameraManager;
 
@@ -74,15 +73,6 @@ public final class ServiceManager {
         }
         return powerManager;
     }
-
-    public static StatusBarManager getStatusBarManager() {
-        if (statusBarManager == null) {
-            statusBarManager = StatusBarManager.create();
-        }
-        return statusBarManager;
-    }
-
-
 
     public static ActivityManager getActivityManager() {
         if (activityManager == null) {

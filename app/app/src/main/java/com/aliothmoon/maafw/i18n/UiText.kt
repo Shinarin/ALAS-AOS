@@ -21,8 +21,8 @@ sealed interface UiText {
     /**
      * 已经是成品文本，**不参与本地化**
      *
-     * 别直接构造，走 [uiTextFromProject] / [uiTextFromFramework] / [uiTextFormatted]——
-     * 这三个名字说清了「为什么不翻译」，而裸的 `Verbatim("…")` 看不出是有意还是漏了。
+     * 别直接构造，走 [uiTextFromFramework] / [uiTextFormatted]——
+     * 这两个名字说清了「为什么不翻译」，而裸的 `Verbatim("…")` 看不出是有意还是漏了。
      * 单模块下 `internal` 挡不住任何人，靠 `UiTextBoundaryTest` 扫源码兜底
      */
     data class Verbatim(val value: String) : UiText
@@ -54,26 +54,11 @@ sealed interface UiText {
 fun uiTextOf(@StringRes resId: Int, vararg args: Any?): UiText =
     UiText.Resource(resId = resId, args = args.toList())
 
-fun uiTextPlural(@PluralsRes resId: Int, count: Int, vararg args: Any?): UiText =
-    UiText.Plural(resId = resId, count = count, args = args.toList())
-
-/** PI 作者写的文案：task / option 的 label 与 description */
-fun uiTextFromProject(label: String?): UiText = verbatimOrEmpty(label)
-
 /** 任务执行层抛回的原文：错误信息、节点名（函数名沿自 MaaFwApp 上游） */
 fun uiTextFromFramework(raw: String?): UiText = verbatimOrEmpty(raw)
 
 /** java.time 或数值格式化的产物，本身已随 locale 变化，不需要再查资源 */
 fun uiTextFormatted(value: String?): UiText = verbatimOrEmpty(value)
-
-fun uiTextJoin(vararg parts: UiText, separator: String = ""): UiText =
-    UiText.Joined(
-        parts = parts.filterNot { it is UiText.Empty },
-        // 不能走 verbatimOrEmpty：分隔符常是纯空白，那个会把它判成 Empty
-        separator = if (separator.isEmpty()) UiText.Empty else UiText.Verbatim(separator),
-    )
-
-fun uiTextLines(vararg lines: UiText): UiText = uiTextJoin(*lines, separator = "\n")
 
 fun UiText?.resolve(context: Context): String = when (this) {
     null, UiText.Empty -> ""
