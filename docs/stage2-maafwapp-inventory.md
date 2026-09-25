@@ -2,6 +2,7 @@
 
 > 来源：2026-09-15 explore 子代理只读调研（fork 钉版 `m0-archive/vendor/MaaFwApp` @ b2b0f54 实测）。
 > 用途：阶段二执行的工作底稿。`F` = `m0-archive/vendor/MaaFwApp`（只读档案，复活另建工作副本）。
+> 状态更新（2026-09 大扫除批次 C）：屏保、亮屏解锁、主屏分辨率/主屏镜像采集、前台模式（`DisplayMode`/`RunMode`）、双向看门狗的特权→app 段（含 `remote/internal/AppWatchdog.kt`）、AIDL 业务残桩（`IMaaRunnerCallback`、`RemoteService` 业务面）均已从工作副本删除，下文相关条目以「批次 C 已删」标注；行号均指 fork 钉版基线，清单作历史底稿留存。
 
 ## 〇、三条改变任务理解的发现
 
@@ -40,7 +41,7 @@
 | `project/`（7） | PI 解包加载 | **剔除** |
 | `schedule/`（12） | 定时任务 | **剔除**（含 manifest 的 3 个声明与 2 个权限） |
 | `notification/`（22） | 通知中心 + 11 推送渠道 | 渠道层与业务无关，可留可删（建议阶段二先删，需要再捡） |
-| `overlay/`（9） | 悬浮球/面板/边框/屏保 | **保留**（`OverlayController` 强依赖 RunnerPort，需改造） |
+| `overlay/`（9） | 悬浮球/面板/边框（屏保批次 C 已删） | **保留**（`OverlayController` 强依赖 RunnerPort，需改造） |
 | `service/`（3） | RunForegroundService 保活 FGS / AccessibilityHelperService | **保留**（FGS 需换状态源） |
 | `third/`（16） | 隐藏 API 反射壳 | **保留** |
 | `app/src/main/native/` | bridge.cpp 等 + launcher.c | **保留**（产 libbridge.so/liblauncher.so） |
@@ -56,7 +57,7 @@
 
 特权进程内 TCP 22300 服务（Kotlin，`RemoteServiceImpl` 或新 `BridgeServer.kt`），端点 `ping/screencap/click/swipe/shell`（去 ocr）：
 - 截屏：`NativeBridgeLib` 帧缓冲 + 新增取裸字节 JNI；坐标/尺寸口径照抄 `VirtualDisplayManager.getConfig()`（原 `MaaRunner.buildControllerConfig` `remote/MaaRunner.kt:456-477` 的注释）。
-- 注入：`InputControlUtils.down/move/up`（`RemoteServiceImpl.kt:249-253` 已有带 displayId 的同款调用）。**`setContactSupport()` 须在新桥初始化时显式调用**（原在 `MaaRunner.prepare()` `remote/MaaRunner.kt:253-260`，删业务后没人调，多指 contact 走 0 分支）。
+- 注入：`InputControlUtils.down/move/up`（`RemoteServiceImpl.kt:249-253` 已有带 displayId 的同款调用）。**`setContactSupport()` 须在新桥初始化时显式调用**（原在 `MaaRunner.prepare()` `remote/MaaRunner.kt:253-260`，删业务后没人调，多指 contact 走 0 分支）。（现状：始终未调用，`g_read_contact` 恒 false、恒单指；批次 G 已把 `bridge_input.cpp` 注释改正）
 - shell：`ProcessBuilder`（特权进程天然 shell uid）+ 剥 `LD_LIBRARY_PATH`（防 agent 库污染系统二进制，m0 `main.py:216-218` 经验）。
 - 协议照 m0：行分隔 JSON + screencap 响应后随裸字节；全局串行锁保留（m0 ZMQ 非线程安全教训）；不再需要 10s 心跳（无 Agent socket），但要替代性"桥活着"判据。
 - ALAS 侧客户端不动：`rootfs/patches/module/device/method/maaal.py`（截图:107/点击:117/长按:120/滑动:128/shell:138/VD id 探测:148-156/app 启停:160-191）。
@@ -66,8 +67,8 @@
 - 权限声明 `AndroidManifest.xml:8`（`moe.shizuku.manager.permission.API_V23`）+ queries :174-176 + provider :146-152。
 - 初始化 `privileged/RemoteServiceManager.kt:142-151`；权限请求 `ShizukuManager.kt:51-118`；绑定 `ShizukuRemoteServiceConnector.kt:82-92`（`processNameSuffix("service")`、`daemon(false)`、tag+version）。
 - AIDL 面 `RemoteService.aidl`（显式 transaction id，destroy=16777114 Shizuku 保留）。
-- 特权进程入口 `remote/RemoteServiceImpl.kt:36`（`Workarounds.apply()` + 看门狗 :358-378）。
-- 特权操作面：虚拟屏 `:151-191`、亮屏解锁 `:89-98,213`、主屏分辨率 `:221-233`、目标 app 控制 `:100-113,194-211`、权限代授 `:290-326`（幻影查杀 `PermissionGrantHelper.kt:131`）、预览 surface/手动触摸 `:237-259`、**业务执行 `:263-284`（剔除）**。
+- 特权进程入口 `remote/RemoteServiceImpl.kt:36`（`Workarounds.apply()` + 看门狗 :358-378（批次 C 已删））。
+- 特权操作面：虚拟屏 `:151-191`、亮屏解锁 `:89-98,213`（批次 C 已删）、主屏分辨率 `:221-233`（批次 C 已删）、目标 app 控制 `:100-113,194-211`、权限代授 `:290-326`（幻影查杀 `PermissionGrantHelper.kt:131`）、预览 surface/手动触摸 `:237-259`、**业务执行 `:263-284`（剔除）**。
 
 ## 五、WebView 壳（保留，两处小改）
 
@@ -79,8 +80,8 @@
 
 - FGS `service/RunForegroundService.kt:53`（specialUse，子类型文案改外壳语义 `:101-104`）；**观察源绑 RunnerPort/FocusDispatcher/RunLogRecorder（:54-57,109-131），剔业务后换"桥/rootfs 是否活着"或直接常驻**——注意 MIUI Adj=905 被 force-stop 的实测注释，保活层不许降级。
 - 无 WakeLock（全仓无）；亮屏 = 特权侧 `PowerController.kt:85-109` 每 4s `userActivity(displayId)`（建屏成功即启动 `RemoteServiceImpl.kt:171-177`）。
-- 双向看门狗：特权→app `/proc/<pid>` 5s（`RemoteServiceImpl.kt:358-378`）；app→特权 binder linkToDeath（`RemoteServiceManager.kt:71-105,153-166`）。
-- `remote/internal/AppWatchdog.kt` 目标 app 看门狗保留。
+- 双向看门狗：特权→app `/proc/<pid>` 5s（`RemoteServiceImpl.kt:358-378`，批次 C 已删）；app→特权 binder linkToDeath（`RemoteServiceManager.kt:71-105,153-166`，保留）。
+- `remote/internal/AppWatchdog.kt` 目标 app 看门狗（批次 C 已删）。
 - 电池优化引导 `privileged/PermissionManager.kt:196-207` + 特权代授 `PermissionGrantHelper.kt:91,103`。
 
 ## 七、构建系统
@@ -110,4 +111,4 @@
 - `SHOULD_SHOW_SYSTEM_DECORATIONS` 被 `VD_SYSTEM_DECORATIONS=false`（`:39`）挡住，**未启用**。
 - API33+：`TRUSTED|OWN_DISPLAY_GROUP|ALWAYS_UNLOCKED|TOUCH_FEEDBACK_DISABLED`；API34+：加 `OWN_FOCUS|DEVICE_DISPLAY_GROUP|STEAL_TOP_FOCUS_DISABLED`。
 - `ROTATES_WITH_CONTENT`（`:28`）是死常量（无引用），删以正视听。
-- 建屏：`createNewVirtualDisplay("MaaFwVirtualDisplay",1280,720,160,...)`（`third/wrappers/DisplayManager.java:170-176` 反射；`constant/DefaultDisplayConfig.kt:13,17-19`）。`PrimaryDisplayManager.kt:117-131` 是主屏镜像采集，非新 VD。
+- 建屏：`createNewVirtualDisplay("MaaFwVirtualDisplay",1280,720,160,...)`（`third/wrappers/DisplayManager.java:170-176` 反射；`constant/DefaultDisplayConfig.kt:13,17-19`）。`PrimaryDisplayManager.kt:117-131` 是主屏镜像采集，非新 VD（批次 C 已删）。

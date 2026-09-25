@@ -1,5 +1,7 @@
 package com.aliothmoon.maafw.gradle
 
+// dormant by decision（devlog 2026-09-20：能力保留，无品牌暴露）
+
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.add

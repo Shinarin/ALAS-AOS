@@ -2,11 +2,12 @@
 """
 i18n strings.xml 一致性校验与冗余清理工具。
 
-项目的多语言结构(由 translate_maa_strings.py 的工作流决定):
+项目的多语言结构:
   - res/values/strings.xml      默认资源 = 中文源(source of truth)
-  - res/values-en/strings.xml   英文翻译(由 translate_maa_strings.py 生成)
-  - res/values-zh/strings.xml   历史遗留的中文冗余副本,应删除
-                                (中文 locale "zh" 会自动 fallback 到默认 values)
+  - res/values-en/strings.xml   英文翻译
+  - res/values-zh/strings.xml   历史遗留的中文冗余副本,已删除
+                                (中文 locale "zh" 会自动 fallback 到默认 values;
+                                --clean 保留作防御,values-zh 若重现可再清理)
 
 本脚本做两件事:
   1) 校验(默认):对比默认 values(中文)与 values-en(英文),报告

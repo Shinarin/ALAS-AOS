@@ -6,7 +6,7 @@
 
 - 开发宪法：`docs/roadmap-v3.md`（13 项决策、阶段〇–五、风险登记）。
 - 阶段二工作底稿：`docs/stage2-maafwapp-inventory.md`（减法三栏清单 / 新桥设计 / VD flag 核查）。
-- 任何不清楚之处：先读 roadmap，再读 `handoff/` 最新文件（当前 `2026-09-16-m5a.md`）。
+- 任何不清楚之处：先读 roadmap，再读 `handoff/` 目录下最新文件（按文件名日期排序取最新）。
 
 ## 仓库结构（现状）
 

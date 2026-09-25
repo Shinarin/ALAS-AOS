@@ -25,8 +25,8 @@ interface RemoteService {
     oneway void heartbeat(int appPid) = 4;
 
     /**
-     * piRoot 是解包后的 PI 根目录绝对路径
-     * logDir 交给 MaaFramework 落 maa.log 与 Screencap 动作的产物；不设时它按进程 CWD 算，特权进程的 CWD 不可写
+     * piRoot/logDir 是 PI 时代的遗留形参（PI 解包根 / MaaFramework 日志目录），
+     * MaaFramework 与 PI 机制均已剔除，实现侧只记日志不使用；保留只为不动 AIDL 事务号
      */
     boolean setup(String piRoot, String logDir, boolean isDebug) = 5;
 

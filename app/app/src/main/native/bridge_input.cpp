@@ -12,9 +12,10 @@ static jmethodID g_key_down_method = nullptr;
 static jmethodID g_key_up_method = nullptr;
 static jmethodID g_start_app_method = nullptr;
 
-/* TouchArgs.contact 是随 MaaFramework v5.12.3 才由 fw 填的合约字段；旧 fw 不写它，
- * 那 4 字节是调用方栈上的残值，可能落进 [0,16) 变成幻影手指。默认 false：
- * Kotlin 判完 fw 版本之前，触摸一律按单指 contact 0 注入 */
+/* TouchArgs.contact 源自 MaaFramework v5.12.3 的合约字段：旧 fw 不写它，
+ * 那 4 字节是调用方栈上的残值，可能落进 [0,16) 变成幻影手指。
+ * v3 已摘出 MaaFramework，SetInputContactSupport 再无调用方，g_read_contact 恒 false：
+ * 触摸一律按单指 contact 0 注入；防护保留，防桥客户端日后真写多指 */
 static std::atomic_bool g_read_contact{false};
 
 void SetInputContactSupport(bool supported) {
