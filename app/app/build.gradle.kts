@@ -48,7 +48,6 @@ dependencies {
 
     implementation(project(":annotation-api"))
     ksp(project(":ksp-processor"))
-    implementation(project(":semi-icons"))
 
     // MIUI 上系统权限页的跳转差异大，自己拼 Intent 覆盖不全
     implementation(libs.xx.permissions)

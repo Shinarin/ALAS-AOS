@@ -54,5 +54,3 @@ include(":hidden-api")
 // Preferences DataStore 的 schema 代码生成（@PrefSchema / @PrefKey）
 include(":annotation-api")
 include(":ksp-processor")
-// Semi Design 图标（vector drawable + SemiIconRes）
-include(":semi-icons")
