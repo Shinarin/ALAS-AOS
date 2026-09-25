@@ -4,98 +4,13 @@
     <!-- Common -->
     <string name="common_close">Close</string>
     <string name="common_back">Back</string>
-    <string name="common_save">Save</string>
-    <string name="common_copy">Copy</string>
-    <string name="common_rename">Rename</string>
     <string name="common_delete">Delete</string>
     <string name="common_loading">Loading…</string>
     <string name="dialog_confirm">OK</string>
     <string name="dialog_cancel">Cancel</string>
 
-    <!-- Tasks screen -->
-    <string name="tasks_project_load_failed">Project failed to load. Check diagnostics on Home.</string>
-    <string name="tasks_reload">Reload</string>
-    <string name="tasks_empty_config_title">No configurations yet</string>
-    <string name="tasks_empty_config_hint">Tap the selector above to create an empty configuration, or start from a template</string>
-    <string name="tasks_empty_task_title">No tasks yet</string>
-    <string name="tasks_empty_task_hint">Pick tasks to run from the task catalog</string>
-    <string name="tasks_add_task">Add tasks</string>
-    <string name="tasks_run_order">Task list</string>
-    <string name="tasks_live_preview">Live preview</string>
-    <string name="tasks_preview_waiting_surface">Waiting for frames</string>
-    <string name="virtual_display_game_running">Running</string>
-    <string name="virtual_display_game_stopped">Stopped</string>
-    <string name="virtual_display_app_drifted">Off-display</string>
-    <string name="virtual_display_idle">Idle</string>
-    <string name="tasks_preview_exit_fullscreen">Exit fullscreen</string>
-    <string name="tasks_preview_idle">Not running</string>
-    <string name="tasks_remove">Remove</string>
-    <string name="tasks_drag_reorder">Drag to reorder</string>
-    <string name="tasks_rename">Rename</string>
-    <string name="tasks_duplicate">Duplicate</string>
-    <string name="tasks_rename_dialog_title">Rename task</string>
-    <string name="tasks_rename_label">Name</string>
-    <string name="tasks_copy_suffix"> (Copy)</string>
-    <string name="tasks_description_title">Task description</string>
-
-    <!-- Runner toggle -->
-    <string name="runner_start">Start tasks</string>
-    <string name="runner_foreground_blocked">Foreground mode is active; switch to background mode first</string>
-
-    <!-- Configuration sheet -->
-    <string name="config_title">Configurations</string>
-    <string name="config_select">Select configuration</string>
-    <string name="config_copy_name">%1$s copy</string>
-    <string name="config_create_from_template">New from template</string>
-    <string name="config_template_list_hint">Preview a template and pick the tasks you need before creating</string>
-    <string name="config_name_label">Configuration name</string>
-    <string name="config_included_tasks">Included tasks</string>
-    <string name="config_included_count">%1$d/%2$d</string>
-    <string name="config_create_use">Create and use</string>
-    <plurals name="config_create_use_count">
-        <item quantity="one">Create and use (%1$d task)</item>
-        <item quantity="other">Create and use (%1$d tasks)</item>
-    </plurals>
-    <string name="config_task_disabled_by_default">Off by default</string>
-    <string name="config_create_empty">New empty configuration</string>
-    <string name="config_create_empty_hint">After creating, use “Add tasks” to pick tasks from the catalog</string>
-    <string name="config_empty_default_name">Empty config</string>
-    <string name="config_rename_title">Rename configuration</string>
-    <plurals name="config_task_count">
-        <item quantity="one">%1$d task</item>
-        <item quantity="other">%1$d tasks</item>
-    </plurals>
-    <plurals name="template_task_count">
-        <item quantity="one">%1$d/%2$d task</item>
-        <item quantity="other">%1$d/%2$d tasks</item>
-    </plurals>
-
-    <!-- Add tasks sheet -->
-    <string name="tasks_search_placeholder">Search task names or descriptions</string>
-    <string name="tasks_search_clear">Clear search</string>
-    <string name="tasks_add_hint">Checked tasks are appended in the order you pick them; the same task can be added again</string>
-    <string name="tasks_search_empty">No tasks match “%1$s”</string>
-    <string name="tasks_confirm_add">Add selected</string>
-    <string name="tasks_confirm_add_count">Add selected (%1$d)</string>
-
-    <!-- Home screen -->
-    <string name="home_project">Project</string>
-    <string name="home_project_loading">Loading ProjectInterface…</string>
-    <string name="home_project_load_failed">Project failed to load</string>
-    <string name="home_name">Name</string>
-    <string name="home_resource">Server</string>
-    <string name="home_none">None</string>
-    <string name="home_diagnostics_summary">Diagnostics: %1$d</string>
-    <plurals name="home_diagnostics_summary_with_errors">
-        <item quantity="one">Diagnostics: %1$d (%2$d error)</item>
-        <item quantity="other">Diagnostics: %1$d (%2$d errors)</item>
-    </plurals>
-
     <!-- Settings screen -->
-    <string name="settings_section_global_option">Task settings</string>
-    <string name="settings_section_resource_option">Resource settings</string>
     <string name="settings_section_display">Display</string>
-    <string name="settings_section_schedule">Scheduled tasks</string>
     <string name="settings_section_other">Other</string>
     <string name="settings_theme">Theme</string>
     <string name="settings_theme_style">Theme style</string>
@@ -106,35 +21,13 @@
     <string name="settings_theme_style_semi">Semi Design</string>
     <string name="settings_language">Language</string>
     <string name="settings_language_hint">Switching language reloads the project; unavailable while running</string>
-    <string name="settings_run_mode">Run mode</string>
-    <string name="settings_run_mode_background">Background mode</string>
-    <string name="settings_run_mode_foreground">Foreground mode</string>
-    <string name="settings_run_mode_hint_background">Runs on a separate virtual display so the phone stays usable; resolution derived from the project declaration</string>
-    <string name="settings_run_mode_hint_foreground">Drives the current screen directly, occupying the phone while running; the target app is not restarted and preview touch is disabled</string>
-    <string name="settings_resource">Server selection</string>
-    <string name="settings_no_resources">The project provides no selectable servers</string>
-    <string name="settings_current_resource">Current resource</string>
-    <string name="settings_not_selected">Not selected</string>
-    <string name="settings_resource_hint">Switching resources affects task applicability; unavailable while running</string>
-    <string name="settings_reload_project">Reload project</string>
     <string name="settings_about">About</string>
     <string name="settings_version">Version</string>
     <string name="settings_build">Build</string>
-    <string name="settings_telemetry">Help improve this project</string>
-    <string name="settings_telemetry_desc">Sends task names and run results to the project author. Screenshots, log text and anything you type are never included</string>
-    <string name="settings_project">Project</string>
-    <string name="settings_project_version">Project version</string>
-    <string name="settings_about_contact">Contact</string>
-    <string name="settings_about_license">License</string>
-    <string name="settings_about_repository">Repository</string>
-    <string name="welcome_title">Welcome</string>
 
     <!-- Notifications -->
     <string name="notification_channel_run">ALAS runtime guard</string>
     <string name="notification_channel_run_desc">Guards the virtual display and bridge so the system does not reclaim the process</string>
-    <string name="notification_channel_focus">Project messages</string>
-    <string name="notification_channel_focus_desc">Alerts the PI project asks to push to you during a run</string>
-    <string name="notification_focus_title">Project message</string>
     <string name="notification_host_title">Guarding ALAS environment</string>
     <string name="notification_host_content_ok">Virtual display #%1$d · bridge OK</string>
     <string name="notification_host_content_degraded">Virtual display #%1$d · bridge unreachable</string>
@@ -169,113 +62,10 @@
     <string name="host_state_ok">OK</string>
     <string name="host_state_unreachable">unreachable</string>
     <string name="host_state_display_none">not created</string>
-    <string name="settings_overlay_mode">Overlay mode</string>
-    <string name="settings_overlay_mode_ball">Floating ball mode</string>
-    <string name="settings_overlay_mode_accessibility">Shortcut mode</string>
-    <string name="settings_overlay_mode_hint_ball">Tap the floating ball to toggle the panel</string>
-    <string name="settings_overlay_mode_hint_accessibility">Press volume up + down together to toggle the panel; an accessibility service is required</string>
-    <string name="settings_overlay_show">Open control panel</string>
-
-    <!-- Screen saver -->
-    <string name="settings_screen_saver">Screen off</string>
-    <string name="settings_screen_saver_auto">Turn the screen off while running</string>
-    <string name="settings_screen_saver_hint">Blacks out the screen while a background run is in progress, leaving only the clock, battery and the latest log line; swipe right to unlock, and it is removed automatically when the run ends</string>
-    <string name="settings_screen_saver_show">Turn off now</string>
-    <string name="screensaver_idle">Guarding environment…</string>
-    <string name="screensaver_swipe_to_unlock">Swipe right to unlock</string>
-
-    <!-- Schedules -->
-    <string name="notification_channel_schedule">Schedule triggers</string>
-    <string name="notification_channel_schedule_desc">Appears briefly when a schedule fires</string>
-    <string name="notification_schedule_title">Schedule</string>
-    <string name="notification_schedule_triggered">Triggered</string>
-
-    <string name="schedule_title">Schedules</string>
-    <string name="schedule_add">New rule</string>
-    <string name="schedule_empty">No schedules yet</string>
-    <string name="schedule_empty_hint">Once a rule is added, its bound run configuration runs automatically at the scheduled time</string>
-    <string name="schedule_next_trigger">Next %1$s</string>
-    <string name="schedule_next_none">Incomplete rule, will not fire</string>
-    <string name="schedule_disabled">Disabled</string>
-    <string name="schedule_exact_alarm_blocked">Exact alarms are not allowed</string>
-    <string name="schedule_exact_alarm_hint">Schedules still fire on time, but the status bar shows an alarm icon</string>
-    <string name="schedule_exact_alarm_grant">Allow</string>
-    <string name="schedule_exact_alarm_settings">Exact alarm settings</string>
-
-    <string name="schedule_edit_new">New rule</string>
-    <string name="schedule_edit_existing">Edit rule</string>
-    <string name="schedule_edit_name">Name</string>
-    <string name="schedule_edit_name_placeholder">Untitled rule</string>
-    <string name="schedule_edit_type">Trigger</string>
-    <string name="schedule_edit_type_fixed">Fixed times</string>
-    <string name="schedule_edit_type_interval">Fixed interval</string>
-    <string name="schedule_edit_days">Days</string>
-    <string name="schedule_edit_times">Times</string>
-    <string name="schedule_edit_add_time">Add time</string>
-    <string name="schedule_edit_start_time">First run</string>
-    <string name="schedule_edit_interval">Execution interval</string>
-    <string name="schedule_edit_save">Save</string>
-    <string name="schedule_edit_delete">Delete</string>
-    <string name="schedule_edit_error_name">Name cannot be empty</string>
-    <string name="schedule_edit_error_days">Select at least one day</string>
-    <string name="schedule_edit_error_times">Add at least one time</string>
-    <string name="schedule_edit_error_start">Pick a start time</string>
-    <string name="schedule_edit_error_interval">Interval must be greater than 0</string>
-    <string name="schedule_edit_every_day">Every day</string>
-
-    <string name="schedule_interval_minutes">Every %1$d min</string>
-    <string name="schedule_interval_hours">Every %1$d h</string>
-    <string name="schedule_interval_days">Every %1$d d</string>
-    <string name="schedule_edit_days_unit">Days</string>
-    <string name="schedule_edit_hours_unit">Hours</string>
-    <string name="schedule_edit_total_hours">= %1$d hours</string>
-
-    <string name="schedule_log_title">Trigger log</string>
-    <string name="schedule_log_empty">No triggers recorded</string>
-    <string name="schedule_log_clear">Clear</string>
-    <string name="schedule_log_delay">%1$s late</string>
-    <string name="schedule_result_triggered">Triggered</string>
-    <string name="schedule_result_started">Run started</string>
-    <string name="schedule_result_duplicate">Duplicate trigger, skipped</string>
-    <string name="run_countdown_remaining">Starting in %1$d s</string>
-    <string name="run_countdown_start_now">Start now</string>
-    <string name="run_countdown_cancel">Skip this run</string>
-    <string name="run_countdown_cancelled">This scheduled run was cancelled</string>
-    <string name="wake_unlock_need_pin">A PIN is required to unlock; add it in Settings</string>
-    <string name="wake_unlock_pin_rejected">Wrong PIN, or this lock screen does not accept injected keys</string>
-    <string name="wake_unlock_screen_off">The screen did not turn on</string>
-    <string name="wake_unlock_unsupported">Wake-and-unlock is not available on this device</string>
-    <string name="wake_unlock_failed">Wake-and-unlock failed (%1$d)</string>
-    <string name="settings_wake_unlock">Wake and unlock on scheduled triggers</string>
-    <string name="settings_wake_credential">Unlock PIN</string>
-    <string name="settings_wake_credential_hint">Numeric PIN only; stored in the clear on this device and cleared on export</string>
-    <string name="schedule_edit_advanced">Advanced</string>
-    <string name="schedule_edit_force_start">Force start</string>
-    <string name="schedule_edit_force_start_tip">Interrupt a run already in progress and run this rule instead</string>
-    <string name="schedule_edit_auto_sleep">Sleep after the task finishes</string>
-    <string name="schedule_edit_skip_sleep_if_awake">Skip if the screen was already on at start</string>
-    <string name="schedule_edit_close_app">Close the target app after the task</string>
-    <string name="schedule_edit_close_app_tip">Background mode only. If "Options → Close the target app when task ends" is already enabled, that switch takes precedence; this strategy setting applies only when it is off. Manually stopping a task will not close the app</string>
-    <string name="schedule_result_failed_start">Did not start</string>
-    <string name="schedule_reason_configuration_missing">The bound run configuration was deleted</string>
-    <string name="schedule_reason_invalid_plan">Configuration errors; the run could not be prepared</string>
-    <string name="schedule_reason_blocked">A start check did not pass</string>
-    <string name="schedule_reason_rejected">A run is already in progress</string>
-    <string name="schedule_edit_configuration">Run configuration</string>
-    <string name="schedule_edit_configuration_required">Pick the configuration this rule runs</string>
-    <string name="schedule_configuration_missing">Bound configuration was deleted</string>
-    <string name="schedule_edit_configuration_none">No run configurations yet; create one on the Tasks page</string>
-    <string name="schedule_result_failed_validation">Rule missing</string>
-    <string name="schedule_result_failed_service">Service failed to start</string>
 
     <!-- Navigation & dialogs -->
     <string name="nav_alas">ALAS</string>
-    <string name="nav_home">Home</string>
-    <string name="nav_tasks">Tasks</string>
-    <string name="nav_schedule">Schedule</string>
     <string name="nav_settings">Settings</string>
-    <string name="dialog_cannot_start">Cannot start</string>
-    <string name="dialog_ok">OK</string>
 
     <!-- ALAS tab: WebUI container -->
     <string name="alas_webui_not_running">ALAS is served by the app\'s built-in environment. The first launch needs initialization; if it stays down, check the runtime environment and retry</string>
@@ -292,97 +82,19 @@
     <string name="hangar_env_start">Start environment</string>
     <string name="hangar_preview_waiting">Connecting preview…</string>
     <string name="hangar_config_label">Run config</string>
-    <string name="hangar_config_switch">Switch</string>
-    <string name="hangar_config_running_hint">Stop the scheduler to switch config</string>
     <string name="hangar_tool_label">Tools</string>
     <string name="hangar_tool_semi_auto">Semi-Auto Click</string>
     <string name="hangar_tool_event_story">Event Story</string>
-    <string name="hangar_tool_running">%1$s running</string>
     <string name="hangar_tool_stop">Stop</string>
     <string name="hangar_preview_moved">Preview is showing in fullscreen</string>
     <string name="hangar_fullscreen_exit">Exit fullscreen</string>
 
-    <!-- Option editor -->
-    <string name="option_input_invalid">Invalid input</string>
-
-    <!-- Localized text for structured domain/VM semantics (ui/i18n/DomainStrings) -->
-    <string name="tasks_ungrouped">Ungrouped</string>
-    <string name="task_unavailable_missing">Task no longer exists in the project</string>
-    <string name="task_unavailable_controller">Unsupported controller (requires %1$s)</string>
-    <string name="task_unavailable_resource">Unsupported resource (requires %1$s)</string>
-    <string name="msg_locked_while_running">Cannot change configuration while running</string>
-    <string name="msg_project_not_loaded">Project is not loaded yet</string>
-    <string name="msg_backend_unavailable">%1$s is not available</string>
-    <string name="msg_backend_auth_rejected">%1$s was not granted</string>
-    <string name="msg_bind_service_failed">Could not connect to the privileged process: %1$s</string>
-    <string name="msg_no_executable_tasks">No tasks available to run</string>
-    <string name="msg_template_not_found">Template \"%1$s\" does not exist</string>
-    <string name="msg_cannot_start">Cannot start: %1$s</string>
-    <string name="msg_launch_in_progress">Launch already in progress</string>
-    <string name="msg_precheck_ignored_confirmation">A start check ignored the confirmation; aborted</string>
-    <string name="msg_hook_timeout">Run environment setup timed out: %1$s</string>
-    <string name="msg_hook_failed">Run environment setup failed: %1$s</string>
-    <string name="msg_cannot_stop">Cannot stop: %1$s</string>
-
-    <!-- Runner reject/failure reasons: reason is now UiText, no longer interpolated as %s -->
-    <string name="msg_fail_default">Run failed</string>
-    <string name="msg_fail_privileged_exited">Privileged process exited</string>
-    <string name="msg_fail_privileged_reported_finished">Privileged process reported the run already finished</string>
-    <string name="msg_reject_already_running">A run is already in progress</string>
-    <string name="msg_reject_stop_failed">Failed to stop</string>
-    <string name="msg_reject_setup_failed">Privileged process initialization failed</string>
-    <string name="msg_reject_switch_display_mode">Failed to switch display mode: %1$s</string>
-    <string name="msg_reject_primary_capture">Failed to start primary screen capture</string>
-    <string name="msg_reject_virtual_display">Virtual display failed to start; check service permissions</string>
-    <string name="msg_reject_service_rejected">Privileged process rejected the run</string>
-
-    <!-- Server switching & run options -->
-    <string name="resource_switch_title">Resource</string>
-    <string name="runner_quick_options">Options</string>
-    <string name="quick_actions_title">Quick actions</string>
-    <string name="quick_settings_title">Automation</string>
-    <string name="quick_action_screen_saver">Screen off</string>
-    <string name="quick_action_close_app">Close target app</string>
-    <string name="quick_setting_close_app_after_task">Close the target app when task ends</string>
-    <string name="quick_setting_touch_preview">Show touch preview</string>
-
     <!-- Privileged access (home permission card + Shizuku guidance) -->
-    <string name="permission_section">Permissions</string>
     <string name="permission_backend">Startup mode</string>
-    <string name="permission_granted">Granted</string>
     <string name="permission_request">Request</string>
-    <string name="permission_quick_grant">Quick grant</string>
     <string name="permission_requesting">Requesting…</string>
-    <string name="permission_service_connected">Privileged process connected</string>
-    <string name="permission_service_disconnected">Privileged process not connected</string>
-    <string name="permission_open_shizuku">Shizuku shortcut</string>
-    <string name="permission_expand">Show more permissions</string>
-    <string name="permission_collapse">Hide more permissions</string>
-    <string name="permission_notification">Notification</string>
-    <string name="permission_battery">Battery whitelist</string>
-    <string name="permission_battery_added">Added</string>
-    <string name="permission_overlay">Display over other apps</string>
-    <string name="permission_storage">All files access</string>
-    <string name="permission_accessibility">Accessibility service</string>
-    <string name="permission_keepalive_hint">While a background task is running, the app or the game may be cleared by system power-management policies. Lock the game in the recent-apps screen and allow it high-power background running in its battery settings.</string>
-    <string name="home_overview">Overview</string>
-    <string name="home_display_resolution">Screen resolution</string>
-    <string name="home_service_status">Service status</string>
 
     <!-- Service status line -->
-    <string name="home_status_connecting">Starting…</string>
-    <string name="home_status_died">Service disconnected</string>
-    <string name="home_status_error">Service error</string>
-    <string name="home_status_disconnected">Not started</string>
-    <string name="home_status_project_loading">Loading project…</string>
-    <string name="home_status_project_failed">Project load failed</string>
-    <string name="home_status_runner_unavailable">Cannot run tasks</string>
-    <string name="home_status_preparing">Starting task…</string>
-    <string name="home_status_running">Running</string>
-    <string name="home_status_stopping">Stopping task…</string>
-    <string name="home_status_ready">Ready</string>
-    <string name="home_service_connect">Reload service</string>
-    <string name="home_service_disconnect">Close service</string>
     <string name="dialog_shizuku_not_installed_title">shizuku-m Not Detected</string>
     <string name="dialog_shizuku_not_installed_message">This app relies on the privileged service provided by shizuku-m (a modified Shizuku), which was not detected on this device. Install shizuku-m first (see the project README), then tap below to re-check.</string>
     <string name="dialog_shizuku_install_confirm">Installed, re-check</string>
@@ -399,21 +111,6 @@
     <string name="dialog_shizuku_official_conflict_message">This app works with shizuku-m, a modified Shizuku that reconnects offline after every reboot without WLAN or a computer. It shares the official package name but uses a different signature, so it cannot be installed over the official build — uninstall the official Shizuku first, then install shizuku-m (see the project README). Uninstalling it does not affect this app data.</string>
     <string name="dialog_shizuku_uninstall_confirm">Uninstall official build</string>
     <string name="common_got_it">Got it</string>
-
-    <string name="tasks_log">Log</string>
-
-    <!-- Run history: one file per run -->
-    <string name="log_archive_title">Run history</string>
-    <string name="log_archive_empty">No history yet. Each finished run is recorded here.</string>
-    <string name="log_archive_meta">%1$d tasks · %2$s</string>
-    <string name="log_archive_cleanup">Clean up old</string>
-    <string name="log_archive_delete_title">Delete this record</string>
-    <string name="log_archive_delete_message">Delete the run from %1$s? This cannot be undone.</string>
-    <string name="log_detail_title">Run detail</string>
-    <string name="log_detail_started">Started %1$s</string>
-    <string name="log_detail_tasks">Tasks: %1$s</string>
-    <string name="log_detail_ended">Ended %1$s</string>
-    <string name="log_detail_empty">This run record is empty</string>
 
     <!-- Launcher logs: the whole log/ directory (app.log rolling files by AppLogWriter, session.log, crash) -->
     <string name="app_log_title">Launcher logs</string>
@@ -457,195 +154,6 @@
     <string name="dialog_disable_auto_clean_title">Disable auto-clean</string>
     <string name="dialog_disable_auto_clean_message">With auto-clean off, expired logs are never removed and may take up significant storage over time.</string>
 
-    <!-- Diagnostic texts; built by DiagnosticMessages in domain/Diagnostics.kt -->
-    <string name="diagnostic_severity_warning">Warning</string>
-    <string name="diagnostic_severity_error">Error</string>
-    <string name="diagnostic_interface_read_failed">Failed to read interface.json: %1$s</string>
-    <string name="diagnostic_missing_interface_version">Missing interface_version (PI V2 requires 2)</string>
-    <string name="diagnostic_unsupported_interface_version">Unsupported interface_version %1$d (only 2 is supported)</string>
-    <string name="diagnostic_json_parse_failed">Failed to parse JSON: %1$s</string>
-    <string name="diagnostic_translation_json_parse_failed">Failed to parse translation JSON: %1$s</string>
-    <string name="diagnostic_entry_not_object">%1$s entry is not an object</string>
-    <string name="diagnostic_required_field_missing">%1$s is missing %2$s</string>
-    <string name="diagnostic_resource_path_missing">Resource "%1$s" is missing path</string>
-    <string name="diagnostic_no_adb_controller">This project declares no Adb controller; tasks restricted to a controller are unavailable</string>
-    <string name="diagnostic_language_path_invalid">Language "%1$s" path is not a string</string>
-    <string name="diagnostic_import_read_failed">Failed to read import; skipped: %1$s</string>
-    <string name="diagnostic_project_has_no_tasks">Project declares no tasks</string>
-    <string name="diagnostic_duplicate_declaration">Duplicate %1$s "%2$s"; keeping the first declaration</string>
-    <string name="diagnostic_translation_read_failed">Failed to read translation file: %1$s</string>
-    <string name="diagnostic_description_read_failed">Failed to read description file; keeping original text: %1$s</string>
-    <string name="diagnostic_default_case_missing">Option "%1$s" default_case "%2$s" is not in cases</string>
-    <string name="diagnostic_input_has_no_fields">Input option "%1$s" has no usable inputs</string>
-    <string name="diagnostic_unsupported_option_type">Option "%1$s" type "%2$s" is unsupported on Android; skipped</string>
-    <string name="diagnostic_invalid_option_type">Option "%1$s" has invalid type: %2$s</string>
-    <string name="diagnostic_option_case_not_object">Option "%1$s" contains a case that is not an object</string>
-    <string name="diagnostic_option_case_name_missing">Option "%1$s" contains a case without name</string>
-    <string name="diagnostic_invalid_pipeline_type">Input "%1$s.%2$s" has invalid pipeline_type %3$s; using string</string>
-    <string name="diagnostic_regex_compile_failed">Input "%1$s.%2$s" verify regex failed to compile: %3$s</string>
-    <string name="diagnostic_missing_reference">References missing %1$s "%2$s"</string>
-    <string name="diagnostic_option_cycle">Option references form a cycle: %1$s</string>
-    <string name="diagnostic_directory_enumeration_failed">Failed to enumerate %1$s directory: %2$s</string>
-    <string name="diagnostic_no_available_resource">No resource is available</string>
-    <string name="diagnostic_resource_selection_missing">Resource "%1$s" no longer exists; falling back to %2$s</string>
-    <string name="diagnostic_none">none</string>
-    <string name="diagnostic_active_configuration_missing">activeConfigurationId points to a missing configuration</string>
-    <string name="diagnostic_configured_task_missing">Task "%1$s" is no longer in the project</string>
-    <string name="diagnostic_runtime_no_resource">No resource is available to build the runtime environment</string>
-    <string name="diagnostic_enabled_task_missing_definition">Enabled task "%1$s" has no definition</string>
-    <string name="diagnostic_option_unset_without_default">Option "%1$s" is unset and has no default</string>
-    <string name="diagnostic_selected_case_missing">Option "%1$s" selects missing case "%2$s"</string>
-    <string name="diagnostic_invalid_input">Option "%1$s" input "%2$s" is invalid: %3$s</string>
-    <string name="diagnostic_integer_conversion_failed">Option "%1$s" input "%2$s" cannot be converted to an integer</string>
-    <string name="diagnostic_boolean_conversion_failed">Option "%1$s" input "%2$s" cannot be converted to a boolean</string>
-    <string name="schedule_default_name">Schedule %1$d</string>
-
-    <!-- PI unpacking -->
-    <string name="pi_install_title">Preparing project resources</string>
-    <string name="pi_install_progress">%1$d / %2$d (%3$d%%)</string>
-    <string name="pi_install_progress_count">Wrote %1$d files</string>
-    <string name="pi_install_note">Extracted once on first launch and after each version update. Please wait…</string>
-    <string name="pi_install_failed_title">Failed to prepare project resources</string>
-    <string name="pi_install_failed_message">%1$s\n\nCheck that there is enough free space, then retry.</string>
-    <string name="pi_install_retry">Retry</string>
-    <string name="pi_install_error">Extraction failed: %1$s</string>
-
-    <string name="settings_section_pi">Project resources</string>
-    <string name="pi_reinstall_title">Extract resources again</string>
-    <string name="pi_reinstall_desc">Extract the project resources again from the APK</string>
-    <string name="dialog_reinstall_pi_title">Extract project resources again</string>
-    <string name="dialog_reinstall_pi_message">Extract the project resources again?\n\nThe copy on this device will be deleted and extracted again. Please do not leave the app while this runs. Run configurations and logs are unaffected.</string>
-
-    <!-- Foreground mode: primary display size and control panel -->
-    <string name="foreground_resolution_title">Screen resolution</string>
-    <string name="foreground_resolution_hint">Foreground mode works on the main screen and needs a 16:9 picture. The change affects the whole system, so reset it when you are done</string>
-    <string name="foreground_resolution_apply">Change resolution</string>
-    <string name="foreground_resolution_reset">Reset resolution</string>
-    <string name="foreground_resolution_applied">Changed to %1$s</string>
-    <string name="foreground_resolution_cleared">Restored the original resolution</string>
-    <string name="foreground_resolution_apply_failed">Could not change the resolution; this device may not allow it</string>
-    <string name="foreground_resolution_reset_failed">Could not reset the resolution; this device may not allow it</string>
-    <string name="foreground_resolution_too_small">The screen %1$s is too small to fit a 16:9 picture</string>
-    <string name="foreground_resolution_required">The screen is not 16:9 yet — tap Change resolution first</string>
-    <string name="foreground_service_required">Connect the Shizuku or Root backend first</string>
-    <string name="foreground_overlay_unsupported">The control panel is unavailable for now</string>
-
-    <!-- Settings "Notifications" group entry -->
-    <string name="settings_section_notification">Notifications</string>
-    <string name="settings_notification_desc">Get told when a run ends, on this phone or elsewhere</string>
-
-    <!-- Notification settings screen -->
-    <string name="notification_settings_title">Notification settings</string>
-    <string name="notification_section_internal">On this device</string>
-    <string name="notification_enable">Notify when a run ends</string>
-    <string name="notification_popup">Show as a banner</string>
-    <string name="notification_send_test">Send a test notification</string>
-    <string name="notification_section_external">When to push</string>
-    <string name="notification_send_on_complete">All tasks completed</string>
-    <string name="notification_send_on_error">A task failed</string>
-    <string name="notification_send_on_service_died">Background service stopped</string>
-    <string name="notification_include_log_details">Attach the run log to the message</string>
-    <string name="notification_section_test">Test push</string>
-    <string name="notification_test_title">Test notification</string>
-    <string name="notification_test_message">This is a test notification from ALAS-AOS</string>
-
-    <!-- Push channel names -->
-    <string name="notification_provider_server_chan">ServerChan</string>
-    <string name="notification_provider_telegram">Telegram</string>
-    <string name="notification_provider_discord">Discord</string>
-    <string name="notification_provider_ding_talk">DingTalk bot</string>
-    <string name="notification_provider_kook">KOOK bot</string>
-    <string name="notification_provider_discord_webhook">Discord Webhook</string>
-    <string name="notification_provider_smtp">Email (SMTP)</string>
-    <string name="notification_provider_bark">Bark</string>
-    <string name="notification_provider_qmsg">Qmsg</string>
-    <string name="notification_provider_gotify">Gotify</string>
-    <string name="notification_provider_custom_webhook">Custom webhook</string>
-
-    <!-- Channel fields -->
-    <string name="notification_label_send_key">Send Key</string>
-    <string name="notification_label_server_url">Server URL</string>
-    <string name="notification_label_bark_send_key">Bark Send Key</string>
-    <string name="notification_label_bot_token">Bot Token</string>
-    <string name="notification_label_chat_id">Chat ID</string>
-    <string name="notification_label_topic_id">Topic ID</string>
-    <string name="notification_label_user_id">User ID</string>
-    <string name="notification_label_access_token">Access Token</string>
-    <string name="notification_label_secret">Signing secret</string>
-    <string name="notification_label_kook_target_id">Channel ID / User ID</string>
-    <string name="notification_kook_direct_message">Send as a direct message</string>
-    <string name="notification_label_webhook_url">Webhook URL</string>
-    <string name="notification_label_webhook_headers">Request headers</string>
-    <string name="notification_label_request_body_template">Request body template</string>
-    <string name="notification_label_smtp_server">SMTP server</string>
-    <string name="notification_label_smtp_port">Port</string>
-    <string name="notification_use_ssl">Use SSL</string>
-    <string name="notification_requires_auth">Requires sign-in</string>
-    <string name="notification_label_smtp_user">Username</string>
-    <string name="notification_label_smtp_password">Password</string>
-    <string name="notification_label_from">From</string>
-    <string name="notification_label_to">To</string>
-    <string name="notification_label_qmsg_server">Qmsg server</string>
-    <string name="notification_label_qmsg_key">Qmsg Key</string>
-    <string name="notification_label_user_qq">Recipient QQ</string>
-    <string name="notification_label_bot_qq">Bot QQ</string>
-    <string name="notification_label_application_token">Application Token</string>
-    <string name="notification_placeholder_optional">Optional</string>
-    <string name="notification_placeholder_optional_signing_secret">Optional, for bots set to signed mode</string>
-    <string name="notification_placeholder_optional_required_when_auth">Required once sign-in is on</string>
-    <string name="notification_placeholder_kook_target_id">User ID for direct messages, channel ID for channels</string>
-    <string name="notification_supported_placeholders">Placeholders: {title} {content} {time}</string>
-
-    <!-- Per-channel feedback for a test push -->
-    <string name="notification_feedback_no_channel">Turn on at least one push channel first</string>
-    <string name="notification_feedback_send_success">%1$s sent</string>
-    <string name="notification_feedback_send_failed">%1$s failed</string>
-
-    <!-- Run event notifications; channel names show up in the system notification settings -->
-    <string name="notification_event_channel_silent_name">Run result (silent)</string>
-    <string name="notification_event_channel_silent_desc">Leaves an entry in the shade when a run ends, without a sound</string>
-    <string name="notification_event_channel_popup_name">Run result (banner)</string>
-    <string name="notification_event_channel_popup_desc">Shows a banner with a sound when a run ends</string>
-    <string name="notification_event_run_completed">All tasks completed</string>
-    <plurals name="notification_event_run_completed_body">
-        <item quantity="one">%1$d task in total</item>
-        <item quantity="other">%1$d tasks in total</item>
-    </plurals>
-    <string name="notification_event_run_partial">Run ended with failures</string>
-    <string name="notification_event_run_partial_body">%1$d of %2$d succeeded; failed: %3$s</string>
-    <string name="notification_event_run_failed">Run failed</string>
-    <string name="notification_event_service_died">Background service stopped</string>
-    <string name="notification_event_service_died_body">The background service ended unexpectedly and this run was aborted</string>
-
-    <!-- Push failure reasons, produced by each channel and shown in the test feedback -->
-    <string name="notification_err_network">Network request failed</string>
-    <string name="notification_err_http_status">Server returned status %1$d</string>
-    <string name="notification_err_serverchan_key_empty">ServerChan Send Key is empty</string>
-    <string name="notification_err_serverchan_sctp_fmt">ServerChan sctp Send Key has the wrong format</string>
-    <string name="notification_err_telegram_token_empty">Telegram Bot Token is empty</string>
-    <string name="notification_err_telegram_chat_empty">Telegram Chat ID is empty</string>
-    <string name="notification_err_discord_token_empty">Discord Bot Token is empty</string>
-    <string name="notification_err_discord_user_empty">Discord User ID is empty</string>
-    <string name="notification_err_discord_dm_failed">Could not open a Discord direct message channel</string>
-    <string name="notification_err_discord_webhook_empty">Discord Webhook URL is empty</string>
-    <string name="notification_err_dingtalk_token_empty">DingTalk Access Token is empty</string>
-    <string name="notification_err_kook_token_empty">KOOK Bot Token is empty</string>
-    <string name="notification_err_kook_target_empty">KOOK channel ID or user ID is empty</string>
-    <string name="notification_err_kook_api">KOOK API error %1$d: %2$s</string>
-    <string name="notification_err_smtp_server_empty">SMTP server is empty</string>
-    <string name="notification_err_smtp_port_invalid">SMTP port is not a number</string>
-    <string name="notification_err_smtp_from_empty">Sender address is empty</string>
-    <string name="notification_err_smtp_to_empty">Recipient address is empty</string>
-    <string name="notification_err_smtp_auth_empty">Sign-in is on but the username or password is empty</string>
-    <string name="notification_err_bark_server_empty">Bark server URL is empty</string>
-    <string name="notification_err_bark_key_empty">Bark Send Key is empty</string>
-    <string name="notification_err_qmsg_server_empty">Qmsg server URL is empty</string>
-    <string name="notification_err_qmsg_key_empty">Qmsg Key is empty</string>
-    <string name="notification_err_gotify_server_empty">Gotify server URL is empty</string>
-    <string name="notification_err_gotify_token_empty">Gotify application token is empty</string>
-    <string name="notification_err_gotify_scheme">Gotify server URL must start with http:// or https://</string>
-    <string name="notification_err_webhook_url_empty">Webhook URL is empty</string>
-    <string name="notification_err_webhook_body_empty">Webhook body template is empty</string>
     <!-- First-launch rootfs provisioning -->
     <string name="provision_title">Setting up runtime</string>
     <string name="provision_subtitle">The first launch extracts about 1 GB of runtime files. This takes a minute or two and happens only once</string>

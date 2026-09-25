@@ -4,94 +4,13 @@
     <!-- 通用 -->
     <string name="common_close">关闭</string>
     <string name="common_back">返回</string>
-    <string name="common_save">保存</string>
-    <string name="common_copy">复制</string>
-    <string name="common_rename">重命名</string>
     <string name="common_delete">删除</string>
     <string name="common_loading">加载中…</string>
     <string name="dialog_confirm">确定</string>
     <string name="dialog_cancel">取消</string>
 
-    <!-- 任务页 -->
-    <string name="tasks_project_load_failed">项目加载失败，请查看首页诊断</string>
-    <string name="tasks_reload">重新加载</string>
-    <string name="tasks_empty_config_title">还没有配置</string>
-    <string name="tasks_empty_config_hint">点击上方选择器新建空配置，或从模板快速创建</string>
-    <string name="tasks_empty_task_title">还没有任务</string>
-    <string name="tasks_empty_task_hint">从任务目录选择要执行的任务</string>
-    <string name="tasks_add_task">添加任务</string>
-    <string name="tasks_run_order">任务列表</string>
-    <string name="tasks_live_preview">实时预览</string>
-    <string name="tasks_preview_waiting_surface">等待画面</string>
-    <string name="virtual_display_game_running">运行中</string>
-    <string name="virtual_display_game_stopped">已停止</string>
-    <string name="virtual_display_app_drifted">已离屏</string>
-    <string name="virtual_display_idle">空闲</string>
-    <string name="tasks_preview_exit_fullscreen">退出全屏</string>
-    <string name="tasks_preview_idle">未在运行</string>
-    <string name="tasks_remove">移除</string>
-    <string name="tasks_drag_reorder">拖动排序</string>
-    <string name="tasks_rename">重命名</string>
-    <string name="tasks_duplicate">复制</string>
-    <string name="tasks_rename_dialog_title">重命名任务</string>
-    <string name="tasks_rename_label">名称</string>
-    <string name="tasks_copy_suffix"> (副本)</string>
-    <string name="tasks_description_title">任务说明</string>
-
-    <!-- 运行开关 -->
-    <string name="runner_start">开始任务</string>
-    <string name="runner_foreground_blocked">当前是前台模式，请先切换到后台模式</string>
-
-    <!-- 配置 sheet -->
-    <string name="config_title">配置</string>
-    <string name="config_select">选择配置</string>
-    <string name="config_copy_name">%1$s 副本</string>
-    <string name="config_create_from_template">从模板新建</string>
-    <string name="config_template_list_hint">预览模板内容，按需挑选任务后创建</string>
-    <string name="config_name_label">配置名称</string>
-    <string name="config_included_tasks">带入任务</string>
-    <string name="config_included_count">%1$d/%2$d 个</string>
-    <string name="config_create_use">创建并使用</string>
-    <plurals name="config_create_use_count">
-        <item quantity="other">创建并使用（%1$d 个任务）</item>
-    </plurals>
-    <string name="config_task_disabled_by_default">默认停用</string>
-    <string name="config_create_empty">新建空配置</string>
-    <string name="config_create_empty_hint">创建后可通过「添加任务」从任务目录挑选任务</string>
-    <string name="config_empty_default_name">空配置</string>
-    <string name="config_rename_title">重命名配置</string>
-    <plurals name="config_task_count">
-        <item quantity="other">%1$d 个任务</item>
-    </plurals>
-    <plurals name="template_task_count">
-        <item quantity="other">%1$d/%2$d 个任务</item>
-    </plurals>
-
-    <!-- 添加任务 sheet -->
-    <string name="tasks_search_placeholder">搜索任务名称或说明</string>
-    <string name="tasks_search_clear">清除搜索</string>
-    <string name="tasks_add_hint">勾选的任务将按点选顺序追加到配置末尾，同一任务可重复添加</string>
-    <string name="tasks_search_empty">没有匹配「%1$s」的任务</string>
-    <string name="tasks_confirm_add">确认添加</string>
-    <string name="tasks_confirm_add_count">确认添加（%1$d）</string>
-
-    <!-- 首页 -->
-    <string name="home_project">项目</string>
-    <string name="home_project_loading">正在加载 ProjectInterface…</string>
-    <string name="home_project_load_failed">项目加载失败</string>
-    <string name="home_name">名称</string>
-    <string name="home_resource">服务器</string>
-    <string name="home_none">无</string>
-    <string name="home_diagnostics_summary">诊断：%1$d 条</string>
-    <plurals name="home_diagnostics_summary_with_errors">
-        <item quantity="other">诊断：%1$d 条（%2$d 条错误）</item>
-    </plurals>
-
     <!-- 设置页；分组命名沿用上游 MaaFwApp 系的 settings_section_* 约定 -->
-    <string name="settings_section_global_option">任务设置</string>
-    <string name="settings_section_resource_option">资源设置</string>
     <string name="settings_section_display">显示设置</string>
-    <string name="settings_section_schedule">定时任务设置</string>
     <string name="settings_section_other">其他设置</string>
     <string name="settings_theme">主题</string>
     <string name="settings_theme_style">主题风格</string>
@@ -102,35 +21,13 @@
     <string name="settings_theme_style_semi">Semi Design</string>
     <string name="settings_language">语言</string>
     <string name="settings_language_hint">切换语言会重新加载项目，运行期间不可切换</string>
-    <string name="settings_run_mode">运行模式</string>
-    <string name="settings_run_mode_background">后台模式</string>
-    <string name="settings_run_mode_foreground">前台模式</string>
-    <string name="settings_run_mode_hint_background">在独立的虚拟屏幕上运行任务，手机可正常使用；分辨率由项目声明推导</string>
-    <string name="settings_run_mode_hint_foreground">直接操作当前屏幕，运行期间手机被占用；不会重启目标应用，预览里也不接管触摸</string>
-    <string name="settings_resource">服务器选择</string>
-    <string name="settings_no_resources">项目未提供可选服务器</string>
-    <string name="settings_current_resource">当前资源</string>
-    <string name="settings_not_selected">未选择</string>
-    <string name="settings_resource_hint">切换资源会影响任务适用性，运行期间不可切换</string>
-    <string name="settings_reload_project">重新加载项目</string>
     <string name="settings_about">关于</string>
     <string name="settings_version">版本</string>
     <string name="settings_build">构建</string>
-    <string name="settings_telemetry">帮助改进本项目</string>
-    <string name="settings_telemetry_desc">向项目作者发送任务名与运行结果，不含截图、日志正文与你填写的内容</string>
-    <string name="settings_project">项目</string>
-    <string name="settings_project_version">项目版本</string>
-    <string name="settings_about_contact">联系方式</string>
-    <string name="settings_about_license">开源许可</string>
-    <string name="settings_about_repository">项目仓库</string>
-    <string name="welcome_title">欢迎</string>
 
     <!-- 通知 -->
     <string name="notification_channel_run">ALAS 运行环境守护</string>
     <string name="notification_channel_run_desc">守护虚拟屏与桥服务，避免应用被系统回收</string>
-    <string name="notification_channel_focus">项目消息</string>
-    <string name="notification_channel_focus_desc">PI 项目在运行中要求推送给你的提示</string>
-    <string name="notification_focus_title">项目消息</string>
     <string name="notification_host_title">ALAS 运行环境守护中</string>
     <string name="notification_host_content_ok">虚拟屏 #%1$d · 桥服务正常</string>
     <string name="notification_host_content_degraded">虚拟屏 #%1$d · 桥服务不可达</string>
@@ -165,113 +62,10 @@
     <string name="host_state_ok">正常</string>
     <string name="host_state_unreachable">不可达</string>
     <string name="host_state_display_none">未创建</string>
-    <string name="settings_overlay_mode">悬浮窗模式</string>
-    <string name="settings_overlay_mode_ball">悬浮球模式</string>
-    <string name="settings_overlay_mode_accessibility">快捷键模式</string>
-    <string name="settings_overlay_mode_hint_ball">点击悬浮球切换面板</string>
-    <string name="settings_overlay_mode_hint_accessibility">音量上下键同时按切换面板，需要无障碍服务</string>
-    <string name="settings_overlay_show">打开操作面板</string>
-
-    <!-- 运行期屏保 -->
-    <string name="settings_screen_saver">熄屏挂机</string>
-    <string name="settings_screen_saver_auto">运行时自动熄屏</string>
-    <string name="settings_screen_saver_hint">后台运行时将屏幕显示为全黑，仅保留时钟、电量与最新一条日志；向右滑动解锁，任务结束后自动关闭</string>
-    <string name="settings_screen_saver_show">立即熄屏</string>
-    <string name="screensaver_idle">环境守护中…</string>
-    <string name="screensaver_swipe_to_unlock">向右滑动解锁</string>
-
-    <!-- 定时任务 -->
-    <string name="notification_channel_schedule">定时触发</string>
-    <string name="notification_channel_schedule_desc">定时到点时短暂出现</string>
-    <string name="notification_schedule_title">定时任务</string>
-    <string name="notification_schedule_triggered">已触发</string>
-
-    <string name="schedule_title">定时任务</string>
-    <string name="schedule_add">新建规则</string>
-    <string name="schedule_empty">还没有定时规则</string>
-    <string name="schedule_empty_hint">新建规则后，到达设定时间会自动执行绑定的运行配置</string>
-    <string name="schedule_next_trigger">下次 %1$s</string>
-    <string name="schedule_next_none">规则不完整，不会触发</string>
-    <string name="schedule_disabled">已停用</string>
-    <string name="schedule_exact_alarm_blocked">系统未允许精确闹钟</string>
-    <string name="schedule_exact_alarm_hint">仍会按时触发，但状态栏会多一个闹钟图标</string>
-    <string name="schedule_exact_alarm_grant">去允许</string>
-    <string name="schedule_exact_alarm_settings">精确闹钟设置</string>
-
-    <string name="schedule_edit_new">新建规则</string>
-    <string name="schedule_edit_existing">编辑规则</string>
-    <string name="schedule_edit_name">名称</string>
-    <string name="schedule_edit_name_placeholder">未命名规则</string>
-    <string name="schedule_edit_type">触发方式</string>
-    <string name="schedule_edit_type_fixed">固定时刻</string>
-    <string name="schedule_edit_type_interval">固定间隔</string>
-    <string name="schedule_edit_days">星期</string>
-    <string name="schedule_edit_times">时刻</string>
-    <string name="schedule_edit_add_time">添加时刻</string>
-    <string name="schedule_edit_start_time">首次触发</string>
-    <string name="schedule_edit_interval">执行间隔</string>
-    <string name="schedule_edit_save">保存</string>
-    <string name="schedule_edit_delete">删除</string>
-    <string name="schedule_edit_error_name">名称不能为空</string>
-    <string name="schedule_edit_error_days">至少选择一天</string>
-    <string name="schedule_edit_error_times">至少添加一个触发时刻</string>
-    <string name="schedule_edit_error_start">请选择起始时间</string>
-    <string name="schedule_edit_error_interval">间隔须大于 0</string>
-    <string name="schedule_edit_every_day">每天</string>
-
-    <string name="schedule_interval_minutes">每 %1$d 分钟</string>
-    <string name="schedule_interval_hours">每 %1$d 小时</string>
-    <string name="schedule_interval_days">每 %1$d 天</string>
-    <string name="schedule_edit_days_unit">天</string>
-    <string name="schedule_edit_hours_unit">小时</string>
-    <string name="schedule_edit_total_hours">= %1$d 小时</string>
-
-    <string name="schedule_log_title">触发日志</string>
-    <string name="schedule_log_empty">还没有触发记录</string>
-    <string name="schedule_log_clear">清空</string>
-    <string name="schedule_log_delay">延迟 %1$s</string>
-    <string name="schedule_result_triggered">已触发</string>
-    <string name="schedule_result_started">已开始执行</string>
-    <string name="schedule_result_duplicate">重复触发，已跳过</string>
-    <string name="run_countdown_remaining">%1$d 秒后开始</string>
-    <string name="run_countdown_start_now">立即开始</string>
-    <string name="run_countdown_cancel">取消本次</string>
-    <string name="run_countdown_cancelled">已取消本次定时触发</string>
-    <string name="wake_unlock_need_pin">需要 PIN 才能解锁，请到设置里填写</string>
-    <string name="wake_unlock_pin_rejected">PIN 不对，或该机型锁屏不接受注入按键</string>
-    <string name="wake_unlock_screen_off">屏幕没有亮起来</string>
-    <string name="wake_unlock_unsupported">该机型上的亮屏解锁不可用</string>
-    <string name="wake_unlock_failed">亮屏解锁失败（%1$d）</string>
-    <string name="settings_wake_unlock">定时触发时亮屏解锁</string>
-    <string name="settings_wake_credential">解锁 PIN</string>
-    <string name="settings_wake_credential_hint">只支持纯数字 PIN；明文存在本机，导出配置时会清空</string>
-    <string name="schedule_edit_advanced">高级选项</string>
-    <string name="schedule_edit_force_start">强制启动</string>
-    <string name="schedule_edit_force_start_tip">到达设定时间时若有任务正在执行，中断后执行本规则</string>
-    <string name="schedule_edit_auto_sleep">任务结束后自动熄屏</string>
-    <string name="schedule_edit_skip_sleep_if_awake">启动时已亮屏则不熄屏</string>
-    <string name="schedule_edit_close_app">任务结束后关闭目标应用</string>
-    <string name="schedule_edit_close_app_tip">仅后台模式生效。若「快捷选项 → 任务自动结束时关闭目标应用」已开启，以该开关为准；未开启时才按本策略执行。手动停止任务不会关闭</string>
-    <string name="schedule_result_failed_start">未能开始</string>
-    <string name="schedule_reason_configuration_missing">绑定的运行配置已被删除</string>
-    <string name="schedule_reason_invalid_plan">配置有错，无法生成本次执行</string>
-    <string name="schedule_reason_blocked">启动前检查未通过</string>
-    <string name="schedule_reason_rejected">已有执行在进行中</string>
-    <string name="schedule_edit_configuration">运行配置</string>
-    <string name="schedule_edit_configuration_required">请选择这条规则要跑的配置</string>
-    <string name="schedule_configuration_missing">绑定的配置已删除</string>
-    <string name="schedule_edit_configuration_none">还没有运行配置，请先在任务页创建</string>
-    <string name="schedule_result_failed_validation">规则缺失</string>
-    <string name="schedule_result_failed_service">服务启动失败</string>
 
     <!-- 导航与对话框 -->
     <string name="nav_alas">ALAS</string>
-    <string name="nav_home">首页</string>
-    <string name="nav_tasks">任务</string>
-    <string name="nav_schedule">定时</string>
     <string name="nav_settings">设置</string>
-    <string name="dialog_cannot_start">无法开始</string>
-    <string name="dialog_ok">知道了</string>
 
     <!-- ALAS tab：WebUI 容器 -->
     <string name="alas_webui_not_running">ALAS 服务由 App 内置环境提供，首次启动需完成初始化；若长时间未恢复，请检查运行环境后重试</string>
@@ -288,97 +82,19 @@
     <string name="hangar_env_start">启动环境</string>
     <string name="hangar_preview_waiting">正在接入画面…</string>
     <string name="hangar_config_label">运行配置</string>
-    <string name="hangar_config_switch">切换</string>
-    <string name="hangar_config_running_hint">调度器运行中，停止后可切换配置</string>
     <string name="hangar_tool_label">工具</string>
     <string name="hangar_tool_semi_auto">半自动点击</string>
     <string name="hangar_tool_event_story">活动剧情</string>
-    <string name="hangar_tool_running">%1$s 运行中</string>
     <string name="hangar_tool_stop">停止</string>
     <string name="hangar_preview_moved">画面正在全屏显示</string>
     <string name="hangar_fullscreen_exit">退出全屏</string>
 
-    <!-- option 编辑器 -->
-    <string name="option_input_invalid">输入不合法</string>
-
-    <!-- 跨层结构化语义的展示文案（domain/VM -> ui/i18n/DomainStrings） -->
-    <string name="tasks_ungrouped">未分组</string>
-    <string name="task_unavailable_missing">项目中已不存在该任务</string>
-    <string name="task_unavailable_controller">不支持当前控制器（需要 %1$s）</string>
-    <string name="task_unavailable_resource">不支持当前资源（需要 %1$s）</string>
-    <string name="msg_locked_while_running">运行期间不能修改配置</string>
-    <string name="msg_project_not_loaded">项目尚未加载完成</string>
-    <string name="msg_backend_unavailable">%1$s 不可用</string>
-    <string name="msg_backend_auth_rejected">%1$s 未授权</string>
-    <string name="msg_bind_service_failed">连接特权进程失败：%1$s</string>
-    <string name="msg_no_executable_tasks">没有可用的任务</string>
-    <string name="msg_template_not_found">模板“%1$s”不存在</string>
-    <string name="msg_cannot_start">无法开始：%1$s</string>
-    <string name="msg_launch_in_progress">正在启动中，请稍候</string>
-    <string name="msg_precheck_ignored_confirmation">启动检查未处理确认结果，已中止</string>
-    <string name="msg_hook_timeout">运行环境准备超时：%1$s</string>
-    <string name="msg_hook_failed">运行环境准备失败：%1$s</string>
-    <string name="msg_cannot_stop">无法停止：%1$s</string>
-
-    <!-- Runner 拒绝/失败原因：reason 现为 UiText，不再当 %s 拼接 -->
-    <string name="msg_fail_default">执行失败</string>
-    <string name="msg_fail_privileged_exited">特权进程已退出</string>
-    <string name="msg_fail_privileged_reported_finished">特权进程报告本轮已结束</string>
-    <string name="msg_reject_already_running">已有执行在进行中</string>
-    <string name="msg_reject_stop_failed">停止失败</string>
-    <string name="msg_reject_setup_failed">特权进程初始化失败</string>
-    <string name="msg_reject_switch_display_mode">切换显示模式失败：%1$s</string>
-    <string name="msg_reject_primary_capture">主屏采集启动失败</string>
-    <string name="msg_reject_virtual_display">虚拟屏幕启动失败，请检查服务权限</string>
-    <string name="msg_reject_service_rejected">特权进程拒绝了本次执行</string>
-
-    <!-- 资源切换与运行选项 -->
-    <string name="resource_switch_title">资源</string>
-    <string name="runner_quick_options">快捷选项</string>
-    <string name="quick_actions_title">快捷操作</string>
-    <string name="quick_settings_title">自动设置</string>
-    <string name="quick_action_screen_saver">熄屏挂机</string>
-    <string name="quick_action_close_app">关闭目标应用</string>
-    <string name="quick_setting_close_app_after_task">任务自动结束时关闭目标应用</string>
-    <string name="quick_setting_touch_preview">显示触摸预览</string>
-
     <!-- 提权授权（首页权限卡 + Shizuku 引导） -->
-    <string name="permission_section">权限管理</string>
     <string name="permission_backend">启动模式</string>
-    <string name="permission_granted">已授权</string>
     <string name="permission_request">请求权限</string>
-    <string name="permission_quick_grant">快捷授权</string>
     <string name="permission_requesting">授权中…</string>
-    <string name="permission_service_connected">特权进程已连接</string>
-    <string name="permission_service_disconnected">特权进程未连接</string>
-    <string name="permission_open_shizuku">Shizuku 快捷入口</string>
-    <string name="permission_expand">展开其他权限</string>
-    <string name="permission_collapse">收起其他权限</string>
-    <string name="permission_notification">通知权限</string>
-    <string name="permission_battery">电源管理白名单</string>
-    <string name="permission_battery_added">已添加</string>
-    <string name="permission_overlay">悬浮窗</string>
-    <string name="permission_storage">存储访问</string>
-    <string name="permission_accessibility">无障碍服务</string>
-    <string name="permission_keepalive_hint">后台任务运行期间，应用或游戏有可能会被系统策略清理。建议在系统最近任务里锁定游戏后台、并在游戏电池设置里允许后台高耗电运行</string>
-    <string name="home_overview">概览</string>
-    <string name="home_display_resolution">屏幕分辨率</string>
-    <string name="home_service_status">服务状态</string>
 
     <!-- 服务状态行：连接态 / 项目加载 / 运行态归约成一句 -->
-    <string name="home_status_connecting">服务启动中…</string>
-    <string name="home_status_died">服务已断开</string>
-    <string name="home_status_error">服务异常</string>
-    <string name="home_status_disconnected">未启动</string>
-    <string name="home_status_project_loading">项目加载中…</string>
-    <string name="home_status_project_failed">项目加载失败</string>
-    <string name="home_status_runner_unavailable">无法执行任务</string>
-    <string name="home_status_preparing">任务启动中…</string>
-    <string name="home_status_running">运行中</string>
-    <string name="home_status_stopping">任务停止中…</string>
-    <string name="home_status_ready">就绪</string>
-    <string name="home_service_connect">重新加载服务</string>
-    <string name="home_service_disconnect">关闭服务</string>
     <string name="dialog_shizuku_not_installed_title">未检测到 shizuku-m</string>
     <string name="dialog_shizuku_not_installed_message">本应用依赖 shizuku-m（修改版 Shizuku）提供的特权服务，检测到设备未安装。请先安装 shizuku-m（获取方式见项目 README），装完后点下方按钮重新检测。</string>
     <string name="dialog_shizuku_install_confirm">我已安装，重新检测</string>
@@ -395,21 +111,6 @@
     <string name="dialog_shizuku_official_conflict_message">本应用配套的特权服务是魔改版 shizuku-m：重启手机后可离线自连，无需 WLAN 或电脑。它与官方 Shizuku 包名相同但签名不同，无法覆盖安装——请先在系统中卸载官方 Shizuku，再安装 shizuku-m（获取方式见项目 README）。卸载官方版不影响本应用的数据。</string>
     <string name="dialog_shizuku_uninstall_confirm">去卸载官方版</string>
     <string name="common_got_it">知道了</string>
-
-    <string name="tasks_log">日志</string>
-
-    <!-- 历史日志：每轮运行落盘一份 -->
-    <string name="log_archive_title">运行历史</string>
-    <string name="log_archive_empty">还没有历史记录；每次运行结束后会记录在这里</string>
-    <string name="log_archive_meta">%1$d 个任务 · %2$s</string>
-    <string name="log_archive_cleanup">清理过期</string>
-    <string name="log_archive_delete_title">删除这份记录</string>
-    <string name="log_archive_delete_message">删除 %1$s 的运行记录？此操作无法撤销。</string>
-    <string name="log_detail_title">运行详情</string>
-    <string name="log_detail_started">开始 %1$s</string>
-    <string name="log_detail_tasks">任务：%1$s</string>
-    <string name="log_detail_ended">结束 %1$s</string>
-    <string name="log_detail_empty">此运行记录为空</string>
 
     <!-- 启动器日志：log/ 目录递归（AppLogWriter 落盘的 app.log 系列、session.log、crash） -->
     <string name="app_log_title">启动器日志</string>
@@ -453,194 +154,6 @@
     <string name="dialog_disable_auto_clean_title">关闭自动清理</string>
     <string name="dialog_disable_auto_clean_message">关闭后过期日志将不再自动清理，长期使用可能占大量手机空间。</string>
 
-    <!-- 诊断文案；构造点在 domain/Diagnostics.kt 的 DiagnosticMessages -->
-    <string name="diagnostic_severity_warning">警告</string>
-    <string name="diagnostic_severity_error">错误</string>
-    <string name="diagnostic_interface_read_failed">读取 interface.json 失败：%1$s</string>
-    <string name="diagnostic_missing_interface_version">缺少 interface_version（PI V2 协议要求为 2）</string>
-    <string name="diagnostic_unsupported_interface_version">不支持 interface_version %1$d（仅支持 2）</string>
-    <string name="diagnostic_json_parse_failed">JSON 解析失败：%1$s</string>
-    <string name="diagnostic_translation_json_parse_failed">翻译文件 JSON 解析失败：%1$s</string>
-    <string name="diagnostic_entry_not_object">%1$s 条目不是对象</string>
-    <string name="diagnostic_required_field_missing">%1$s 缺少 %2$s</string>
-    <string name="diagnostic_resource_path_missing">resource "%1$s" 缺少 path</string>
-    <string name="diagnostic_no_adb_controller">该项目未声明 Adb controller，限定 controller 的任务都不可用</string>
-    <string name="diagnostic_language_path_invalid">languages "%1$s" 的路径不是字符串</string>
-    <string name="diagnostic_import_read_failed">import 分片读取失败，已跳过：%1$s</string>
-    <string name="diagnostic_project_has_no_tasks">项目未声明任何任务</string>
-    <string name="diagnostic_duplicate_declaration">%1$s "%2$s" 重复声明，保留先出现的定义</string>
-    <string name="diagnostic_translation_read_failed">翻译文件读取失败：%1$s</string>
-    <string name="diagnostic_description_read_failed">description 文件读取失败，保留原始文本：%1$s</string>
-    <string name="diagnostic_default_case_missing">option "%1$s" 的 default_case "%2$s" 不在 cases 中</string>
-    <string name="diagnostic_input_has_no_fields">input option "%1$s" 没有可用的 inputs</string>
-    <string name="diagnostic_unsupported_option_type">option "%1$s" 的 type "%2$s" 在 Android 端不支持，已跳过</string>
-    <string name="diagnostic_invalid_option_type">option "%1$s" 的 type 非法：%2$s</string>
-    <string name="diagnostic_option_case_not_object">option "%1$s" 存在非对象 case</string>
-    <string name="diagnostic_option_case_name_missing">option "%1$s" 存在缺少 name 的 case</string>
-    <string name="diagnostic_invalid_pipeline_type">input "%1$s.%2$s" 的 pipeline_type 非法：%3$s，按 string 处理</string>
-    <string name="diagnostic_regex_compile_failed">input "%1$s.%2$s" 的 verify regex 编译失败：%3$s</string>
-    <string name="diagnostic_missing_reference">引用了不存在的 %1$s "%2$s"</string>
-    <string name="diagnostic_option_cycle">option 引用形成 cycle：%1$s</string>
-    <string name="diagnostic_directory_enumeration_failed">无法枚举 %1$s 目录：%2$s</string>
-    <string name="diagnostic_no_available_resource">没有可用的 resource</string>
-    <string name="diagnostic_resource_selection_missing">resource "%1$s" 已不存在，回退到 %2$s</string>
-    <string name="diagnostic_none">无</string>
-    <string name="diagnostic_active_configuration_missing">activeConfigurationId 指向不存在的配置</string>
-    <string name="diagnostic_configured_task_missing">任务 "%1$s" 已不在项目中</string>
-    <string name="diagnostic_runtime_no_resource">没有可用的 resource，无法构造运行环境</string>
-    <string name="diagnostic_enabled_task_missing_definition">已启用任务 "%1$s" 缺少 definition</string>
-    <string name="diagnostic_option_unset_without_default">option "%1$s" 未设置且没有默认值</string>
-    <string name="diagnostic_selected_case_missing">option "%1$s" 选择的 case "%2$s" 不存在</string>
-    <string name="diagnostic_invalid_input">option "%1$s" 的输入 "%2$s" 不合法：%3$s</string>
-    <string name="diagnostic_integer_conversion_failed">option "%1$s" 的输入 "%2$s" 无法转换为整数</string>
-    <string name="diagnostic_boolean_conversion_failed">option "%1$s" 的输入 "%2$s" 无法转换为布尔值</string>
-    <string name="schedule_default_name">定时任务 %1$d</string>
-
-    <!-- PI 解压 -->
-    <string name="pi_install_title">正在准备项目资源</string>
-    <string name="pi_install_progress">%1$d / %2$d (%3$d%%)</string>
-    <string name="pi_install_progress_count">已写入 %1$d 个文件</string>
-    <string name="pi_install_note">首次启动与版本更新后需要解压一次，请稍候…</string>
-    <string name="pi_install_failed_title">项目资源准备失败</string>
-    <string name="pi_install_failed_message">%1$s\n\n请检查存储空间是否充足，然后重试。</string>
-    <string name="pi_install_retry">重试</string>
-    <string name="pi_install_error">解压失败：%1$s</string>
-
-    <string name="settings_section_pi">项目资源</string>
-    <string name="pi_reinstall_title">重新解压资源</string>
-    <string name="pi_reinstall_desc">从安装包重新解压项目资源</string>
-    <string name="dialog_reinstall_pi_title">重新解压项目资源</string>
-    <string name="dialog_reinstall_pi_message">确定要重新解压项目资源吗？\n\n这将删除设备上已解压的项目资源并重新解压，请勿在此期间退出应用。运行配置与日志不受影响。</string>
-
-    <!-- 前台模式：主屏分辨率与操作面板 -->
-    <string name="foreground_resolution_title">屏幕分辨率</string>
-    <string name="foreground_resolution_hint">前台模式在主屏上直接操作，需要 16:9 的画面比例。改动会影响整个系统，用完记得重置</string>
-    <string name="foreground_resolution_apply">修改分辨率</string>
-    <string name="foreground_resolution_reset">重置分辨率</string>
-    <string name="foreground_resolution_applied">已改为 %1$s</string>
-    <string name="foreground_resolution_cleared">已恢复出厂分辨率</string>
-    <string name="foreground_resolution_apply_failed">修改分辨率失败，该设备可能不允许</string>
-    <string name="foreground_resolution_reset_failed">重置分辨率失败，该设备可能不允许</string>
-    <string name="foreground_resolution_too_small">屏幕 %1$s 太小，放不下 16:9 的画面</string>
-    <string name="foreground_resolution_required">当前屏幕比例不是 16:9，请先点「修改分辨率」</string>
-    <string name="foreground_service_required">请先连接 Shizuku 或 Root 后端</string>
-    <string name="foreground_overlay_unsupported">操作面板暂不可用</string>
-
-    <!-- 设置页「通知」分组入口 -->
-    <string name="settings_section_notification">通知</string>
-    <string name="settings_notification_desc">任务结束时提醒，也可推送到手机以外的地方</string>
-
-    <!-- 通知设置页 -->
-    <string name="notification_settings_title">通知设置</string>
-    <string name="notification_section_internal">本机通知</string>
-    <string name="notification_enable">任务结束时提醒</string>
-    <string name="notification_popup">弹出横幅</string>
-    <string name="notification_send_test">发送测试通知</string>
-    <string name="notification_section_external">推送时机</string>
-    <string name="notification_send_on_complete">任务全部完成时</string>
-    <string name="notification_send_on_error">任务出错时</string>
-    <string name="notification_send_on_service_died">后台服务中断时</string>
-    <string name="notification_include_log_details">推送内容附带运行日志</string>
-    <string name="notification_section_test">测试推送</string>
-    <string name="notification_test_title">测试通知</string>
-    <string name="notification_test_message">这是一条来自 ALAS-AOS 的测试通知</string>
-
-    <!-- 推送渠道名 -->
-    <string name="notification_provider_server_chan">Server 酱</string>
-    <string name="notification_provider_telegram">Telegram</string>
-    <string name="notification_provider_discord">Discord</string>
-    <string name="notification_provider_ding_talk">钉钉机器人</string>
-    <string name="notification_provider_kook">KOOK 机器人</string>
-    <string name="notification_provider_discord_webhook">Discord Webhook</string>
-    <string name="notification_provider_smtp">邮件（SMTP）</string>
-    <string name="notification_provider_bark">Bark</string>
-    <string name="notification_provider_qmsg">Qmsg 酱</string>
-    <string name="notification_provider_gotify">Gotify</string>
-    <string name="notification_provider_custom_webhook">自定义 Webhook</string>
-
-    <!-- 渠道配置项 -->
-    <string name="notification_label_send_key">Send Key</string>
-    <string name="notification_label_server_url">服务器地址</string>
-    <string name="notification_label_bark_send_key">Bark Send Key</string>
-    <string name="notification_label_bot_token">Bot Token</string>
-    <string name="notification_label_chat_id">Chat ID</string>
-    <string name="notification_label_topic_id">Topic ID</string>
-    <string name="notification_label_user_id">User ID</string>
-    <string name="notification_label_access_token">Access Token</string>
-    <string name="notification_label_secret">加签密钥</string>
-    <string name="notification_label_kook_target_id">频道 ID / 用户 ID</string>
-    <string name="notification_kook_direct_message">发送私聊消息</string>
-    <string name="notification_label_webhook_url">Webhook 地址</string>
-    <string name="notification_label_webhook_headers">请求头</string>
-    <string name="notification_label_request_body_template">请求体模板</string>
-    <string name="notification_label_smtp_server">SMTP 服务器</string>
-    <string name="notification_label_smtp_port">端口</string>
-    <string name="notification_use_ssl">使用 SSL</string>
-    <string name="notification_requires_auth">需要登录认证</string>
-    <string name="notification_label_smtp_user">用户名</string>
-    <string name="notification_label_smtp_password">密码</string>
-    <string name="notification_label_from">发件人</string>
-    <string name="notification_label_to">收件人</string>
-    <string name="notification_label_qmsg_server">Qmsg 服务器</string>
-    <string name="notification_label_qmsg_key">Qmsg Key</string>
-    <string name="notification_label_user_qq">接收 QQ</string>
-    <string name="notification_label_bot_qq">机器人 QQ</string>
-    <string name="notification_label_application_token">应用 Token</string>
-    <string name="notification_placeholder_optional">可选</string>
-    <string name="notification_placeholder_optional_signing_secret">可选，机器人选「加签」时填</string>
-    <string name="notification_placeholder_optional_required_when_auth">开启认证后必填</string>
-    <string name="notification_placeholder_kook_target_id">私聊填用户 ID，频道填频道 ID</string>
-    <string name="notification_supported_placeholders">可用占位符：{title} {content} {time}</string>
-
-    <!-- 测试推送的逐条反馈 -->
-    <string name="notification_feedback_no_channel">请先启用至少一个推送渠道</string>
-    <string name="notification_feedback_send_success">%1$s 发送成功</string>
-    <string name="notification_feedback_send_failed">%1$s 发送失败</string>
-
-    <!-- 运行事件通知；channel 名与说明会出现在系统的通知设置里 -->
-    <string name="notification_event_channel_silent_name">任务结果（静默）</string>
-    <string name="notification_event_channel_silent_desc">任务结束后在通知栏留一条，不出声</string>
-    <string name="notification_event_channel_popup_name">任务结果（弹出）</string>
-    <string name="notification_event_channel_popup_desc">任务结束后弹出横幅并出声</string>
-    <string name="notification_event_run_completed">任务已全部完成</string>
-    <plurals name="notification_event_run_completed_body">
-        <item quantity="other">共 %1$d 个任务</item>
-    </plurals>
-    <string name="notification_event_run_partial">任务已结束，有失败项</string>
-    <string name="notification_event_run_partial_body">成功 %1$d/%2$d；失败：%3$s</string>
-    <string name="notification_event_run_failed">任务执行失败</string>
-    <string name="notification_event_service_died">后台服务中断</string>
-    <string name="notification_event_service_died_body">运行中的后台服务意外结束，本轮任务已中止</string>
-
-    <!-- 推送失败原因；由各渠道产出，展示在测试反馈里 -->
-    <string name="notification_err_network">网络请求失败</string>
-    <string name="notification_err_http_status">服务端返回状态码 %1$d</string>
-    <string name="notification_err_serverchan_key_empty">Server 酱 Send Key 未填写</string>
-    <string name="notification_err_serverchan_sctp_fmt">Server 酱 sctp 开头的 Send Key 格式不对</string>
-    <string name="notification_err_telegram_token_empty">Telegram Bot Token 未填写</string>
-    <string name="notification_err_telegram_chat_empty">Telegram Chat ID 未填写</string>
-    <string name="notification_err_discord_token_empty">Discord Bot Token 未填写</string>
-    <string name="notification_err_discord_user_empty">Discord User ID 未填写</string>
-    <string name="notification_err_discord_dm_failed">创建 Discord 私信频道失败</string>
-    <string name="notification_err_discord_webhook_empty">Discord Webhook 地址未填写</string>
-    <string name="notification_err_dingtalk_token_empty">钉钉 Access Token 未填写</string>
-    <string name="notification_err_kook_token_empty">KOOK Bot Token 未填写</string>
-    <string name="notification_err_kook_target_empty">KOOK 频道 ID 或用户 ID 未填写</string>
-    <string name="notification_err_kook_api">KOOK 接口报错 %1$d：%2$s</string>
-    <string name="notification_err_smtp_server_empty">SMTP 服务器地址未填写</string>
-    <string name="notification_err_smtp_port_invalid">SMTP 端口不是数字</string>
-    <string name="notification_err_smtp_from_empty">发件人地址未填写</string>
-    <string name="notification_err_smtp_to_empty">收件人地址未填写</string>
-    <string name="notification_err_smtp_auth_empty">已开启认证但用户名或密码为空</string>
-    <string name="notification_err_bark_server_empty">Bark 服务器地址未填写</string>
-    <string name="notification_err_bark_key_empty">Bark Send Key 未填写</string>
-    <string name="notification_err_qmsg_server_empty">Qmsg 服务器地址未填写</string>
-    <string name="notification_err_qmsg_key_empty">Qmsg Key 未填写</string>
-    <string name="notification_err_gotify_server_empty">Gotify 服务器地址未填写</string>
-    <string name="notification_err_gotify_token_empty">Gotify 应用 Token 未填写</string>
-    <string name="notification_err_gotify_scheme">Gotify 服务器地址要以 http:// 或 https:// 开头</string>
-    <string name="notification_err_webhook_url_empty">Webhook 地址未填写</string>
-    <string name="notification_err_webhook_body_empty">Webhook 请求体模板未填写</string>
     <!-- 首启 rootfs 部署 -->
     <string name="provision_title">部署运行环境</string>
     <string name="provision_subtitle">首次启动需要解压约 1GB 运行环境，通常一到三分钟，只需一次</string>
