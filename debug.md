@@ -4,6 +4,12 @@
 > **历史坑点（m0 阶段，全真机实证）见 `m0-archive/docs/debug.md` 与 `m0-archive/docs/devlog/`。** 高频索引：
 > WebView `vh` 塌缩（注入 innerHeight 修复）｜幻影进程查杀（`max_phantom_processes` / `settings_enable_monitor_phantom_procs`）｜mDNS `_adb-tls-connect` 端口过期但广播残留｜MaaFW PP-OCR 对 2D 单通道静默返空（堆叠 3ch）｜MaaFW 截图 BGR↔ALAS RGB 翻转｜RUN_COMMAND 权限只授清单声明方｜`am force-stop` 杀不掉 shell uid 残留（须显式 kill）｜桥 30s 无流量判死（10s 心跳）。
 
+## [2026-09-25] 工具秒挂/RequestHumanTakeover/「virtual display not found」先查 Shizuku 在不在跑，别查代码
+
+- **现象**：大扫除回归时 daemon 工具两次秒退，日志依次为 `AlasAos proxy unreachable: Connection refused`（22300）→ `RequestHumanTakeover` → `ScriptError: AlasAos virtual display not found: ''`；App 本体、wrapper、WebUI 全部正常。
+- **根本原因**：Shizuku-m 进程根本没运行（`ps -A | grep -i shizuku` 全空、`ss -tlnp` 无 22300 监听）——特权链（Shizuku→RemoteService→BridgeServer→VirtualDisplay）源头断水，下游每一环的报错都只是水位下降的表象。诱因是覆盖装机杀掉旧特权进程后，没人重新拉起 Shizuku。
+- **解决方案**：判定链固定三步——① `ps -A | grep -i shizuku` + `ss -tlnp | grep 22300`；② 不在就跑 Shizuku-m App 的「离线自连」（本次开机周期激活过即可，断网可用），shizuku_server 起来后 App 侧自动绑定、桥与 VD 自愈，无需重启 App；③ 再重放工具调用。教训：**特权链故障从上游往下游查，先 Shizuku 后桥再 VD 最后 ALAS**；`RequestHumanTakeover` 在本项目语境下 = 上游水位不足，不是 ALAS 逻辑问题。
+
 ## [2026-09-18] git:// 9418 裸 TCP 在运营商网络下不可靠：ping 通≠端口快，大陆正解是 CDN pack（443）
 
 - **现象**：手机热更新连续 5 次 `FAILED fetch`，每次白烧 240s 超时（开机链 4 分钟）；但 ping git.lyoko.io 正常（24~48ms），ls-remote（小包）也能成。
