@@ -1,6 +1,16 @@
 pluginManagement {
     // 构建约定插件（maafw.*）在这个独立构建里，模块脚本只按 id 应用
     includeBuild("build-logic")
+    resolutionStrategy {
+        eachPlugin {
+            if (requested.id.id == "com.google.devtools.ksp") {
+                // KSP marker 工件（com.google.devtools.ksp.gradle.plugin）在 fresh 环境
+                // （CI/空仓）全源判 not found（机制未明，2026-09-25 GHA+本地空仓同现），
+                // 绕过 marker 直拉 impl module——普通库工件，Central/AliyunCentral 稳定有货
+                useModule("com.google.devtools.ksp:symbol-processing-gradle-plugin:${requested.version}")
+            }
+        }
+    }
     repositories {
         mavenLocal()
         // 大陆网络环境 dl.google.com 偶发握手中断，Aliyun 镜像优先、官方源兜底

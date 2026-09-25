@@ -4,6 +4,22 @@
 > **历史坑点（m0 阶段，全真机实证）见 `m0-archive/docs/debug.md` 与 `m0-archive/docs/devlog/`。** 高频索引：
 > WebView `vh` 塌缩（注入 innerHeight 修复）｜幻影进程查杀（`max_phantom_processes` / `settings_enable_monitor_phantom_procs`）｜mDNS `_adb-tls-connect` 端口过期但广播残留｜MaaFW PP-OCR 对 2D 单通道静默返空（堆叠 3ch）｜MaaFW 截图 BGR↔ALAS RGB 翻转｜RUN_COMMAND 权限只授清单声明方｜`am force-stop` 杀不掉 shell uid 残留（须显式 kill）｜桥 30s 无流量判死（10s 心跳）。
 
+## [2026-09-25] Google Maven 停更 KSP（1.5.30 封顶）：`com.google.*` 过滤器把 KSP 2.x 解析毒化到全链失败
+
+- **现象**：push 后 app CI 首跑红——`Plugin [id: 'com.google.devtools.ksp', version: '2.3.9'] was not found`，MavenLocal/AliyunGoogle/Google/AliyunCentral/MavenRepo/Portal 六源全 not found；rerun 45 秒同错（非瞬时）。本机日常构建永远正常。
+- **根本原因**：① **Google Maven 的 KSP 冻结在 1.5.30-1.0.0**（marker 与 symbol-processing-* 库同冻结，2.x 只发 Maven Central/Gradle 插件门户；curl 三连对质实证，Aliyun google 镜像同步这份残缺）；② `settings.gradle.kts` 的 `includeGroupByRegex("com\\.google.*")` 把 `com.google.devtools.ksp` 优先送进这两个 stale 仓库，过滤匹配的 stale 源会毒化整条插件解析链（即使 AliyunCentral/Central/Portal 明明有货也一并判死）；③ 本机 gradle-home 缓存早年存过 2.3.9 永不重解析——与 R8 `.gitignore` 同款「本地有、fresh 没有」病灶，CI（fresh clone）首跑即现形。
+- **解决方案**（两段式，第一段不够，第二段收口）：
+  1. **exclude 过滤器**（fe1d551）：主 `settings.gradle.kts` 与 `build-logic/settings.gradle.kts` 的 Google 系仓库过滤器各加 `excludeGroupByRegex("com\\.google\\.devtools.*")`；build-logic 顺带补 AliyunGoogle 镜像（原来没有，dl.google.com 断流时空仓构建挂 AGP 解析——当晚实测 15s 超时）。本地空仓复现→修复→KSP 工件落缓存，但 **GHA 上同 commit 仍同错**（run 36144723000，"Searched in" 列全部声明仓库不代表逐 repo 查询明细）——marker 工件在 fresh 环境全源判死的底层机制未定位。
+  2. **eachPlugin bypass 确定性绕过**（终稿）：`settings.gradle.kts` 的 `pluginManagement.resolutionStrategy.eachPlugin` 对 `com.google.devtools.ksp` 直接 `useModule("com.google.devtools.ksp:symbol-processing-gradle-plugin:${requested.version}")`——不解析 marker 工件，直拉 impl module（普通库工件，Central/AliyunCentral curl 实证 200）。验证：空仓 fresh GRADLE_USER_HOME 下 marker 缺席、impl 三件套（api/common-deps/gradle-plugin）从网络实拉落缓存；暖缓存 `:app:help` BUILD SUCCESSFUL in 31s。
+  - 教训：**仓库 content 过滤器按「谁真的托管它」划界，别按域名惯性（com.google.* ≠ 都在 google()）；插件/依赖版本 bump 后应以空仓或 CI 验证一次，暖缓存会掩盖一切解析问题；marker 解析链有问题时，eachPlugin.useModule 绕过 marker 是确定性逃生门（impl module 就是普通库，可走任何有货的仓库）。**
+  - 附带发现：本机到 plugins.gradle.org（Cloudflare）大 jar 下载会掉到 2.5KB/s 爬行（ESTABLISHED 但不涨），症状极像 daemon 死锁（jstack 区分法：Daemon worker 停在 `ParallelResolveArtifactSet`/`CountDownLatch.await` + `.tmp/gradle_download*bin` 缓慢增长 = 慢不是死；真死锁=临时文件零增长）。
+
+## [2026-09-25] OCR 门禁的语言路由是语义开关：装真引擎后，合成用例跟着换赛道
+
+- **现象**：rootfs CI 的 Spike F 门禁 16 FAIL——合成数字 '13750'→'137SD'、'0/0'→'D/D'、'6'→'B'；09-20 同代码门禁全 PASS。
+- **根本原因**：`spike-f-ocr-gate.py` 的 synth/gray2d 用例用 `ModelProxy(lang='azur_lane')`——在 numpy 字体引擎缺失的门禁环境里它静默回落 PP-OCR（用例本意就是验 PP-OCR rec）；G2 把真引擎装进镜像后，同样的调用真路由到 39 类游戏字体引擎，读通用 PIL 字体必错（0→D/5→S/6→B）。两次 run 的 pip 版本逐字相同（numpy 2.5.3/onnxruntime 1.30.0/cv2 5.0.0.93/pillow 12.3.0），排除依赖漂移。**教训：带静默回落的双引擎路由里，lang 参数是赛道开关；给弱势引擎补真货时，要回头检查所有「靠回落才正确」的调用点。**
+- **解决方案**：synth/gray2d 改 `lang='cn'`（PP-OCR 通用路径，回归用例本意）；numpy 引擎正确性由 load 断言（`_al is not None`）+ `--real-dir` 真帧模式承担（后者保持 azur_lane 不动）。
+
 ## [2026-09-25] .gitignore 裸目录模式 `config/` 误伤源码包：本地永远能编译、仓库里整包消失
 
 - **现象**：共识收口改 `UserConfigurationStore.kt` 时 `git status` 不显示该文件改动——它从未入库。
