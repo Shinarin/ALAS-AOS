@@ -4,6 +4,18 @@
 > **历史坑点（m0 阶段，全真机实证）见 `m0-archive/docs/debug.md` 与 `m0-archive/docs/devlog/`。** 高频索引：
 > WebView `vh` 塌缩（注入 innerHeight 修复）｜幻影进程查杀（`max_phantom_processes` / `settings_enable_monitor_phantom_procs`）｜mDNS `_adb-tls-connect` 端口过期但广播残留｜MaaFW PP-OCR 对 2D 单通道静默返空（堆叠 3ch）｜MaaFW 截图 BGR↔ALAS RGB 翻转｜RUN_COMMAND 权限只授清单声明方｜`am force-stop` 杀不掉 shell uid 残留（须显式 kill）｜桥 30s 无流量判死（10s 心跳）。
 
+## [2026-09-25] .gitignore 裸目录模式 `config/` 误伤源码包：本地永远能编译、仓库里整包消失
+
+- **现象**：共识收口改 `UserConfigurationStore.kt` 时 `git status` 不显示该文件改动——它从未入库。
+- **根本原因**：`.gitignore` 的裸模式 `config/`（无 `/` 锚点）匹配**任意层级**的同名目录，把 `app/app/src/main/java/com/aliothmoon/maafw/config/` 整包静默忽略；ignore 只作用于未跟踪文件，本地磁盘文件齐全所以构建永远绿，历次 commit 与三方审计全部擦肩而过。新 CI（fresh clone）首跑必在编译期炸。
+- **解决方案**：锚定为 `/config/` + 全仓 `git status --ignored` 排查（确认仅这一个源码包受害）+ 文件补入库（commit `2c7a9e6`）。**教训：.gitignore 的目录模式必须锚定层级（`/foo/`）；CI 的价值之一就是用 fresh clone 照出"本地有、仓库没有"的文件——app.yml 建立后尚未首跑就提前立功。**
+
+## [2026-09-25] 本地 Git Bash 的 `python3` 是 WindowsApps 占位 stub：静默 exit 49 无任何输出
+
+- **现象**：本地调 `python3` 跑脚本无声失败，无报错文本，exit code 49。
+- **根本原因**：Windows 的 App execution alias 把 `python3.exe` 指到 WindowsApps 占位 stub；未装商店版 Python 时 stub 静默退出，管道里表现为"命令跑了但什么都没发生"。
+- **解决方案**：本地一律用 `python`（指向实际安装的解释器）；CI（ubuntu-latest）上 `python3` 才是真 Python。**教训：跨平台脚本不要假定 `python3` 存在；Windows 本地排查"静默失败"先 `which` + `echo $?`。**
+
 ## [2026-09-25] 工具秒挂/RequestHumanTakeover/「virtual display not found」先查 Shizuku 在不在跑，别查代码
 
 - **现象**：大扫除回归时 daemon 工具两次秒退，日志依次为 `AlasAos proxy unreachable: Connection refused`（22300）→ `RequestHumanTakeover` → `ScriptError: AlasAos virtual display not found: ''`；App 本体、wrapper、WebUI 全部正常。
