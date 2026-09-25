@@ -51,9 +51,6 @@ sealed interface UiText {
     ) : UiText
 }
 
-fun uiTextOf(@StringRes resId: Int, vararg args: Any?): UiText =
-    UiText.Resource(resId = resId, args = args.toList())
-
 /** 任务执行层抛回的原文：错误信息、节点名（函数名沿自 MaaFwApp 上游） */
 fun uiTextFromFramework(raw: String?): UiText = verbatimOrEmpty(raw)
 

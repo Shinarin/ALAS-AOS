@@ -8,7 +8,6 @@ import androidx.datastore.preferences.preferencesDataStore
 import com.aliothmoon.maafw.MaaDispatchers
 import com.aliothmoon.maafw.domain.OverlayControlMode
 import com.aliothmoon.maafw.domain.RemoteBackend
-import com.aliothmoon.maafw.domain.RunMode
 import com.aliothmoon.maafw.theme.ThemeStyle
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
@@ -59,14 +58,8 @@ class AppSettingsManager(private val context: Context) : AppSettingsGateway {
     private val _shizukuLaunchPackage = MutableStateFlow(defaults.shizukuLaunchPackage)
     val shizukuLaunchPackage: StateFlow<String> = _shizukuLaunchPackage.asStateFlow()
 
-    private val _runMode = MutableStateFlow(parseRunMode(defaults.runMode))
-    override val runMode: StateFlow<RunMode> = _runMode.asStateFlow()
-
     private val _overlayControlMode = MutableStateFlow(parseOverlayMode(defaults.overlayControlMode))
     override val overlayControlMode: StateFlow<OverlayControlMode> = _overlayControlMode.asStateFlow()
-
-    private val _screenSaverEnabled = MutableStateFlow(defaults.screenSaverEnabled.toBoolean())
-    override val screenSaverEnabled: StateFlow<Boolean> = _screenSaverEnabled.asStateFlow()
 
     private val _autoCleanLogs = MutableStateFlow(defaults.autoCleanLogs.toBoolean())
     override val autoCleanLogs: StateFlow<Boolean> = _autoCleanLogs.asStateFlow()
@@ -82,9 +75,7 @@ class AppSettingsManager(private val context: Context) : AppSettingsGateway {
                 _startupBackend.value = parseBackend(s.startupBackend)
                 _skipShizukuCheck.value = s.skipShizukuCheck.toBoolean()
                 _shizukuLaunchPackage.value = s.shizukuLaunchPackage
-                _runMode.value = parseRunMode(s.runMode)
                 _overlayControlMode.value = parseOverlayMode(s.overlayControlMode)
-                _screenSaverEnabled.value = s.screenSaverEnabled.toBoolean()
                 _autoCleanLogs.value = s.autoCleanLogs.toBoolean()
                 _themeStyle.value = parseThemeStyle(s.themeStyle)
                 // 必须是最后一行：置位即宣告上面全部就位
@@ -105,18 +96,6 @@ class AppSettingsManager(private val context: Context) : AppSettingsGateway {
         context.dataStore.edit { it[shizukuLaunchPackage] = packageName }
     }
 
-    override suspend fun setRunMode(mode: RunMode): Unit = with(AppSettingsSchema) {
-        context.dataStore.edit { it[runMode] = mode.name }
-    }
-
-    override suspend fun setOverlayControlMode(mode: OverlayControlMode): Unit = with(AppSettingsSchema) {
-        context.dataStore.edit { it[overlayControlMode] = mode.name }
-    }
-
-    override suspend fun setScreenSaverEnabled(enabled: Boolean): Unit = with(AppSettingsSchema) {
-        context.dataStore.edit { it[screenSaverEnabled] = enabled.toString() }
-    }
-
     override suspend fun setAutoCleanLogs(enabled: Boolean): Unit = with(AppSettingsSchema) {
         context.dataStore.edit { it[autoCleanLogs] = enabled.toString() }
     }
@@ -128,9 +107,6 @@ class AppSettingsManager(private val context: Context) : AppSettingsGateway {
     /** 盘上是历史遗留或手改的非法值时回落默认，不让设置读取本身抛异常 */
     private fun parseBackend(raw: String): RemoteBackend =
         runCatching { RemoteBackend.valueOf(raw) }.getOrDefault(RemoteBackend.SHIZUKU)
-
-    private fun parseRunMode(raw: String): RunMode =
-        runCatching { RunMode.valueOf(raw) }.getOrDefault(RunMode.BACKGROUND)
 
     private fun parseOverlayMode(raw: String): OverlayControlMode =
         runCatching { OverlayControlMode.valueOf(raw) }.getOrDefault(OverlayControlMode.FLOAT_BALL)

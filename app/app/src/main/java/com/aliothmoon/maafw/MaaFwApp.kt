@@ -16,7 +16,6 @@ import com.aliothmoon.maafw.log.CrashHandler
 import com.aliothmoon.maafw.log.LogCleaner
 import com.aliothmoon.maafw.log.LogTreeHolder
 import com.aliothmoon.maafw.overlay.OverlayController
-import com.aliothmoon.maafw.overlay.screensaver.ScreenSaverOverlayManager
 import com.aliothmoon.maafw.privileged.PermissionManager
 import com.aliothmoon.maafw.privileged.RemoteServiceManager
 import com.aliothmoon.maafw.proot.AlasRunController
@@ -81,6 +80,5 @@ class MaaFwApp : Application() {
         koin.get<HostState>().start()
         koin.get<AlasRunController>().start()
         koin.get<OverlayController>().setup()
-        koin.get<ScreenSaverOverlayManager>().setup()
     }
 }

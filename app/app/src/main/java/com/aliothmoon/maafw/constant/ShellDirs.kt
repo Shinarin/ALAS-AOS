@@ -15,7 +15,4 @@ object ShellDirs {
 
     /** 屏幕电源状态标志，PowerController 跨进程读写 */
     val POWER_OFF_FLAG = File("$BASE/maa_power_off_flag_$PKG")
-
-    /** 强制分辨率状态标志，ScreenManager 跨进程读写 */
-    val SCREEN_FLAG = File("$BASE/maa_screen_flag_$PKG")
 }

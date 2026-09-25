@@ -3,7 +3,6 @@ package com.aliothmoon.maafw.di
 import com.aliothmoon.maafw.overlay.OverlayController
 import com.aliothmoon.maafw.overlay.OverlayViewModelOwner
 import com.aliothmoon.maafw.overlay.border.BorderOverlayManager
-import com.aliothmoon.maafw.overlay.screensaver.ScreenSaverOverlayManager
 import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
 
@@ -18,14 +17,6 @@ val overlayModule = module {
             borderOverlayManager = get(),
             viewModelOwner = get(),
             alasController = get(),
-        )
-    }
-
-    single {
-        ScreenSaverOverlayManager(
-            context = androidContext(),
-            hostState = get(),
-            appSettings = get(),
         )
     }
 }

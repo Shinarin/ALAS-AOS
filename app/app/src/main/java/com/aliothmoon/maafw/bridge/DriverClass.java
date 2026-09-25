@@ -2,7 +2,6 @@ package com.aliothmoon.maafw.bridge;
 
 
 import com.aliothmoon.maafw.remote.internal.ActivityUtils;
-import com.aliothmoon.maafw.remote.internal.PrimaryDisplayManager;
 import com.aliothmoon.maafw.third.Ln;
 
 import java.util.Locale;
@@ -23,9 +22,6 @@ public final class DriverClass {
 
     public static boolean startApp(String packageName, int displayId, boolean forceStop) {
         Ln.i(TAG + String.format(Locale.US, "%s %d %b", packageName, displayId, forceStop));
-        if (displayId == PrimaryDisplayManager.DISPLAY_ID) {
-            return ActivityUtils.startApp(packageName, displayId, forceStop);
-        }
         boolean ret = ActivityUtils.startApp(packageName, displayId, forceStop, true);
         if (ret) {
             // 部分 ROM（如 One UI）会把游戏从虚拟屏挪回主屏，启动后校验并尝试拉回；

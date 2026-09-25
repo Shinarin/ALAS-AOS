@@ -29,17 +29,9 @@ data class AppSettings(
     @PrefKey(default = SHIZUKU_PACKAGE)
     val shizukuLaunchPackage: String = SHIZUKU_PACKAGE,
 
-    /** [com.aliothmoon.maafw.domain.RunMode] 的 name */
-    @PrefKey(default = "BACKGROUND")
-    val runMode: String = "BACKGROUND",
-
-    /** [com.aliothmoon.maafw.domain.OverlayControlMode] 的 name；仅前台模式生效 */
+    /** [com.aliothmoon.maafw.domain.OverlayControlMode] 的 name */
     @PrefKey(default = "FLOAT_BALL")
     val overlayControlMode: String = "FLOAT_BALL",
-
-    /** 后台模式运行期是否自动盖上屏保；默认关，盖住整块屏幕这种事要用户先点头 */
-    @PrefKey(default = "false")
-    val screenSaverEnabled: String = "false",
 
     /** 冷启动自动清理过期日志（ALAS 7 天前日志、过期 session.log 截尾）；默认开 */
     @PrefKey(default = "true")

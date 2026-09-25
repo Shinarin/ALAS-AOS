@@ -1,26 +1,17 @@
 package com.aliothmoon.maafw.remote
 
-import com.aliothmoon.maafw.IMaaRunnerCallback
 import com.aliothmoon.maafw.ITouchEventCallback
 import com.aliothmoon.maafw.RemoteService
 import com.aliothmoon.maafw.bridge.InputControlUtils
 import com.aliothmoon.maafw.bridge.NativeBridgeLib
 import com.aliothmoon.maafw.constant.DefaultDisplayConfig
-import com.aliothmoon.maafw.constant.DisplayMode
-import com.aliothmoon.maafw.remote.internal.ActivityUtils
-import com.aliothmoon.maafw.remote.internal.AppWatchdog
 import com.aliothmoon.maafw.remote.internal.BridgeServer
 import com.aliothmoon.maafw.remote.internal.PermissionGrantHelper
 import com.aliothmoon.maafw.service.AccessibilityHelperService
 import com.aliothmoon.maafw.remote.internal.PowerController
-import com.aliothmoon.maafw.remote.internal.PrimaryDisplayManager
-import com.aliothmoon.maafw.remote.internal.ScreenManager
 import com.aliothmoon.maafw.constant.PrivilegedGrant
 import com.aliothmoon.maafw.remote.internal.VirtualDisplayManager
-import com.aliothmoon.maafw.remote.internal.WakeUnlockController
-import com.aliothmoon.maafw.third.FakeContext
 import com.aliothmoon.maafw.third.Ln
-import com.aliothmoon.maafw.third.wrappers.ServiceManager
 import com.aliothmoon.maafw.third.Workarounds
 import android.view.Surface
 import android.os.Process
@@ -35,7 +26,6 @@ import kotlin.system.exitProcess
  */
 class RemoteServiceImpl : RemoteService.Stub() {
 
-    private val virtualDisplayMode = AtomicInteger(DisplayMode.BACKGROUND)
     private val appPid = AtomicInteger(0)
     private val destroyed = AtomicBoolean(false)
 
@@ -53,7 +43,6 @@ class RemoteServiceImpl : RemoteService.Stub() {
     override fun destroy() {
         if (!destroyed.compareAndSet(false, true)) return
         Ln.i("$TAG: destroy()")
-        AppWatchdog.stopWatching()
         InputControlUtils.setTouchCallback(null)
         cleanup()
         exitProcess(0)
@@ -69,38 +58,6 @@ class RemoteServiceImpl : RemoteService.Stub() {
 
     override fun pid(): Int = Process.myPid()
 
-    override fun watchdogState(): Int = AppWatchdog.state.value
-
-    override fun watchdogTargetPackage(): String = AppWatchdog.targetPackage.orEmpty()
-
-    // ── 亮屏与解锁 ──
-
-    override fun unlock(credential: String?): Int =
-        WakeUnlockController.unlock(credential.orEmpty())
-
-    override fun testUnlock(credential: String?): Int =
-        WakeUnlockController.testUnlock(credential.orEmpty())
-
-    override fun lockAndSleep(): Int = WakeUnlockController.lockAndSleep()
-
-    override fun isScreenOn(): Boolean =
-        runCatching { ServiceManager.getPowerManager().isScreenOn(0) }.getOrDefault(true)
-
-    override fun stopTargetApp(): Boolean {
-        val target = AppWatchdog.targetPackage ?: run {
-            Ln.i("$TAG: stopTargetApp skipped, watchdog never acquired a target")
-            return false
-        }
-        return runCatching {
-            ServiceManager.getActivityManager().forceStopPackage(target)
-            Ln.i("$TAG: force-stopped $target")
-            true
-        }.getOrElse {
-            Ln.w("$TAG: stopTargetApp failed: ${'$'}it")
-            false
-        }
-    }
-
     override fun heartbeat(pid: Int) {
         appPid.set(pid)
     }
@@ -114,88 +71,20 @@ class RemoteServiceImpl : RemoteService.Stub() {
 
     // ── 显示 ──
 
-    override fun setVirtualDisplayMode(mode: Int): Boolean = when (mode) {
-        DisplayMode.PRIMARY -> {
-            VirtualDisplayManager.stop()
-            virtualDisplayMode.set(mode)
-            true
-        }
-
-        DisplayMode.BACKGROUND -> {
-            PrimaryDisplayManager.stop()
-            virtualDisplayMode.set(mode)
-            true
-        }
-
-        else -> false
-    }
-
-    override fun setVirtualDisplayResolution(width: Int, height: Int, dpi: Int) {
-        VirtualDisplayManager.setResolution(width, height, dpi)
-    }
-
-    override fun startVirtualDisplay(): Int = when (virtualDisplayMode.get()) {
-        DisplayMode.PRIMARY -> PrimaryDisplayManager.start()
-        DisplayMode.BACKGROUND -> VirtualDisplayManager.start().also { displayId ->
+    override fun startVirtualDisplay(): Int =
+        VirtualDisplayManager.start().also { displayId ->
             if (displayId != DefaultDisplayConfig.DISPLAY_NONE) {
                 PowerController.startUserActivityKeepAlive(displayId)
             }
         }
 
-        else -> DefaultDisplayConfig.DISPLAY_NONE
-    }
-
     override fun stopVirtualDisplay() {
-        AppWatchdog.stopWatching()
-        when (virtualDisplayMode.get()) {
-            DisplayMode.PRIMARY -> PrimaryDisplayManager.stop()
-            DisplayMode.BACKGROUND -> {
-                PowerController.stopUserActivityKeepAlive()
-                VirtualDisplayManager.stop()
-            }
-        }
-    }
-
-    /** 没有虚拟屏时返回 true：调用方据此判断「是否需要拉回」，无屏可拉即无需处理 */
-    override fun isAppOnVirtualDisplay(packageName: String): Boolean {
-        val displayId = VirtualDisplayManager.getDisplayId()
-        if (displayId == DefaultDisplayConfig.DISPLAY_NONE) return true
-        return ActivityUtils.isAppOnDisplay(packageName, displayId)
-    }
-
-    override fun moveAppToVirtualDisplay(packageName: String): Boolean {
-        val displayId = VirtualDisplayManager.getDisplayId()
-        if (displayId == DefaultDisplayConfig.DISPLAY_NONE) {
-            Ln.w("$TAG: moveAppToVirtualDisplay: no active virtual display")
-            return false
-        }
-        return ActivityUtils.repinAppToDisplay(packageName, displayId)
-    }
-
-    override fun setForceFullscreenOnVirtualDisplay(enabled: Boolean) {
-        ActivityUtils.forceFullscreenOnVirtualDisplay = enabled
+        PowerController.stopUserActivityKeepAlive()
+        VirtualDisplayManager.stop()
     }
 
     override fun setDisplayPower(on: Boolean) {
         PowerController.setDisplayPower(on)
-    }
-
-    /**
-     * 改主屏分辨率会把整个系统的 UI 重排一遍，失败要报出去而不是吞掉——
-     * 用户看到「已修改」却什么都没变，只会以为是自己屏幕不支持
-     */
-    override fun setForcedDisplaySize(width: Int, height: Int): Boolean {
-        Ln.i("$TAG: setForcedDisplaySize(${width}x$height)")
-        return runCatching { ScreenManager.setForcedDisplaySize(width, height) }
-            .onFailure { Ln.e("$TAG: setForcedDisplaySize failed: ${it.message}") }
-            .getOrDefault(false)
-    }
-
-    override fun clearForcedDisplaySize(): Boolean {
-        Ln.i("$TAG: clearForcedDisplaySize")
-        return runCatching { ScreenManager.clearForcedDisplaySize() }
-            .onFailure { Ln.e("$TAG: clearForcedDisplaySize failed: ${it.message}") }
-            .getOrDefault(false)
     }
 
     // ── 预览 ──
@@ -210,7 +99,7 @@ class RemoteServiceImpl : RemoteService.Stub() {
         InputControlUtils.setTouchCallback(callback)
     }
 
-    // ── 预览上的手动操作；主屏模式下不接管输入 ──
+    // ── 预览上的手动操作 ──
 
     override fun touchDown(x: Int, y: Int) = withVirtualDisplay { InputControlUtils.down(x, y, 0, it) }
 
@@ -219,24 +108,9 @@ class RemoteServiceImpl : RemoteService.Stub() {
     override fun touchUp(x: Int, y: Int) = withVirtualDisplay { InputControlUtils.up(x, y, 0, it) }
 
     private inline fun withVirtualDisplay(action: (Int) -> Unit) {
-        if (virtualDisplayMode.get() == DisplayMode.PRIMARY) return
         val displayId = VirtualDisplayManager.getDisplayId()
         if (displayId != DefaultDisplayConfig.DISPLAY_NONE) action(displayId)
     }
-
-    // ── 执行 ──
-
-    override fun setRunnerCallback(callback: IMaaRunnerCallback?) = Unit
-
-    override fun startRun(runPlanJson: String?): Boolean = false
-
-    override fun stopRun(): Boolean = false
-
-    override fun isRunning(): Boolean = false
-
-    override fun saveCachedImage(path: String?): Boolean = false
-
-    override fun maaVersion(): String? = null
 
     /**
      * 逐项独立执行：一项失败不影响其余，返回实际授到的位
@@ -280,26 +154,10 @@ class RemoteServiceImpl : RemoteService.Stub() {
         return granted
     }
 
-    override fun isPackageInstalled(packageName: String): Boolean = try {
-        FakeContext.get().packageManager.getPackageInfo(packageName, 0)
-        true
-    } catch (e: Exception) {
-        Ln.w("$TAG: isPackageInstalled: $packageName not found", e)
-        false
-    }
-
-    /**
-     * 逐项隔离，不共用一个 runCatching：原先四项串在一个块里，头一项抛了后面全跳过
-     *
-     * [ScreenManager.destroy] 尤其漏不得——它撤的是**物理主屏**的强改尺寸，
-     * 漏掉的话用户会留在一块被改小的屏幕上，而且只能靠再拉一次特权进程才撤得回来。
-     * 它自己按 flag 文件判要不要动手，没改过时是空操作
-     */
+    /** 逐项隔离，不共用一个 runCatching：原先几项串在一个块里，头一项抛了后面全跳过 */
     private fun cleanup() {
         step("bridge server") { BridgeServer.stop() }
-        step("screen size") { ScreenManager.destroy() }
         step("power") { PowerController.destroy() }
-        step("primary display") { PrimaryDisplayManager.stop() }
         step("virtual display") { VirtualDisplayManager.stop() }
     }
 
