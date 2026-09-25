@@ -57,6 +57,8 @@ jobs:
           # （且多 deploy.yaml，由 build-rootfs.sh 单独 install），assets 打包布局差异而非漂移，显式排除
           diff -r --exclude=seeds app/app/src/main/assets/alas/overlay rootfs/overlays
           diff -r app/app/src/main/assets/alas/patches rootfs/patches
+          # seeds 本体也是双源，单独成对守（deploy.yaml 仅 rootfs 侧有，由 build-rootfs.sh 安装时消费）
+          diff -r --exclude=deploy.yaml app/app/src/main/assets/alas/overlay/seeds rootfs/seeds
 
       # 纯标准库脚本（argparse/re/xml.etree），ubuntu-latest 预装 python3 即可跑
       - name: i18n strings gate

@@ -15,6 +15,7 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withTimeoutOrNull
 import org.json.JSONObject
 import timber.log.Timber
+import java.io.IOException
 import java.net.HttpURLConnection
 import java.net.URL
 import java.net.URLEncoder
@@ -215,7 +216,11 @@ class AlasRunController(
         val conn = URL(url).openConnection() as HttpURLConnection
         conn.connectTimeout = timeoutMs
         conn.readTimeout = timeoutMs
-        if (conn.responseCode != 200) return null
+        if (conn.responseCode != 200) {
+            // 非 200 也是失败：记到 lastGetFailure，否则节流日志会挂上一次的旧堆栈
+            lastGetFailure = IOException("http ${conn.responseCode}")
+            return null
+        }
         conn.inputStream.use { String(it.readBytes(), Charsets.UTF_8) }
     }.onFailure { lastGetFailure = it }.getOrNull()
 

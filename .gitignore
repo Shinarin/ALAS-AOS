@@ -5,7 +5,9 @@
 .uv-cache/
 .venv/
 __pycache__/
-config/
+# 注意：未加 / 锚点的目录模式会匹配任意层级。
+# config/ 曾误伤 app 源码包 com.aliothmoon.maafw.config（整包未入库，2026-09-25 共识收口发现）——锚定到根
+/config/
 debug/
 dist/
 node_modules/

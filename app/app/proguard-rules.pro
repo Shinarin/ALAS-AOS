@@ -27,7 +27,6 @@
 # AIDL：app 与特权进程各跑一份同样的 dex，descriptor 是字面量，
 # 但 Stub/Proxy 被裁掉过一次就再也连不上，成本低于风险
 -keep class com.aliothmoon.maafw.RemoteService** { *; }
--keep class com.aliothmoon.maafw.IMaaRunnerCallback** { *; }
 -keep class com.aliothmoon.maafw.ITouchEventCallback** { *; }
 
 # hidden-api 是 compileOnly，运行时由 framework 提供，包里没有

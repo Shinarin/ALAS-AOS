@@ -15,8 +15,19 @@ object AlasWebViewHolder {
 
     private val webViews = mutableSetOf<WebView>()
 
+    /** pauseTimers 是进程全局语义；用标志位记住当前该不该处于暂停态 */
+    private var paused = false
+
     fun register(webView: WebView) {
         webViews += webView
+        // Activity 重建窗口里 resumeAll 可能跑在空集合上（全局暂停残留），
+        // 新实例注册时按标志位对齐：该停则停，不该停就清掉残留的全局暂停
+        if (paused) {
+            webView.onPause()
+            webView.pauseTimers()
+        } else {
+            webView.resumeTimers()
+        }
     }
 
     fun unregister(webView: WebView) {
@@ -25,6 +36,7 @@ object AlasWebViewHolder {
 
     /** pauseTimers 是 WebView 全局的；onPause 才是逐实例的，两个都调才算真停 */
     fun pauseAll() {
+        paused = true
         webViews.forEach {
             it.onPause()
             it.pauseTimers()
@@ -32,6 +44,7 @@ object AlasWebViewHolder {
     }
 
     fun resumeAll() {
+        paused = false
         webViews.forEach {
             it.onResume()
             it.resumeTimers()
