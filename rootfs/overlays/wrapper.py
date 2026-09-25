@@ -9,7 +9,7 @@
 GET  /status        → {"runner_alive": bool, "pid": int|null, "config": str|null,
                        "runner_wanted": bool, "runner_respawns": int,
                        "gui_alive": bool, "gui_pid": int|null,
-                       "log_file": str|null, "log_lines": int,
+                       "log_file": str|null, "log_size": int,
                        "tool_alive": bool, "tool_name": str|null, "tool_pid": int|null}
 POST /start?config=N → 幂等拉起 runner 子进程（已在跑则直接返回现状）；N = config/ 下的
                        实例配置名（默认 alas），runner.py argv[1] 透传；
@@ -489,14 +489,11 @@ def _tail_lines(path, n):
     return data.splitlines()[-n:]
 
 
-def _count_lines(path):
+def _log_size(path):
+    """日志文件字节数：append-only 下与行数同单调、轮转同重置，/status 的滚底 key 用它"""
     try:
-        count = 0
-        with open(path, 'rb') as f:
-            for _ in f:
-                count += 1
-        return count
-    except OSError:
+        return os.path.getsize(path)
+    except (OSError, TypeError):
         return 0
 
 
@@ -541,7 +538,7 @@ class _Handler(BaseHTTPRequestHandler):
                 'gui_started_at': datetime.datetime.fromtimestamp(_gui_started_at).isoformat()
                 if _gui_alive() and _gui_started_at else None,
                 'log_file': log_file,
-                'log_lines': _count_lines(log_file) if log_file else 0,
+                'log_size': _log_size(log_file),
                 'tool_alive': _tool_alive(),
                 'tool_name': _tool_name if _tool_alive() else None,
                 'tool_pid': _tool.pid if _tool_alive() else None,

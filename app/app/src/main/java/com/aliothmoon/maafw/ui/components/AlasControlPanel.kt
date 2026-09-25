@@ -105,7 +105,7 @@ fun AlasControlPanel(
         }
         AlasLogBoard(
             lines = alas.logTail,
-            linesCount = alas.logLines,
+            logSize = alas.logSize,
             modifier = Modifier
                 .weight(1f)
                 .fillMaxWidth(),
@@ -144,9 +144,9 @@ fun AlasControlPanel(
 
 /** 半透明黑底日志板：新日志自动沉底；无内容时给占位提示 */
 @Composable
-private fun AlasLogBoard(lines: List<String>, linesCount: Int, modifier: Modifier = Modifier) {
+private fun AlasLogBoard(lines: List<String>, logSize: Long, modifier: Modifier = Modifier) {
     val scrollState = rememberScrollState()
-    LaunchedEffect(linesCount, lines.size) { scrollState.scrollTo(scrollState.maxValue) }
+    LaunchedEffect(logSize, lines.size) { scrollState.scrollTo(scrollState.maxValue) }
     Surface(
         modifier = modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.medium,

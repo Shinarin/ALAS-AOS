@@ -21,7 +21,7 @@ import java.util.concurrent.atomic.AtomicBoolean
  * ALAS 调度器运行态：悬浮窗「开始/停止挂机」与日志板的数据源
  *
  * 数据全部来自 wrapper 薄 HTTP（127.0.0.1:22400，rootfs wrapper.py）：
- * - GET /status → runner_alive/pid/config/gui_alive/log_lines
+ * - GET /status → runner_alive/pid/config/gui_alive/log_size
  * - POST /start?config=N、POST /stop → 调度器启停（幂等；/stop 内部 SIGTERM→3s→SIGKILL，响应偏慢）
  * - GET /logs?tail=N → 纯文本日志尾。语义：按 mtime 取 log/ 下最新 *.txt——
  *   调度器在跑时是它的 {date}_alas.txt，没跑时多半是 gui 启动日志，均够悬浮窗一瞥
@@ -37,7 +37,8 @@ data class AlasRunState(
     val runnerAlive: Boolean = false,
     val pid: Int? = null,
     val guiAlive: Boolean = false,
-    val logLines: Int = 0,
+    /** 最新日志文件的字节数；append-only 下与行数同单调，日志板拿它当滚底 key */
+    val logSize: Long = 0,
     val logTail: List<String> = emptyList(),
     val busy: Boolean = false,
     val configs: List<String> = emptyList(),
@@ -135,7 +136,7 @@ class AlasRunController(
             _state.update {
                 it.copy(
                     reachable = false, runnerAlive = false, pid = null,
-                    guiAlive = false, logLines = 0, logTail = emptyList(),
+                    guiAlive = false, logSize = 0, logTail = emptyList(),
                     configs = emptyList(), runningConfig = null,
                     toolAlive = false, toolName = null,
                 )
@@ -149,7 +150,7 @@ class AlasRunController(
         val toolAlive = j.optBoolean("tool_alive")
         val toolName = if (j.isNull("tool_name")) null else j.optString("tool_name")
         val guiAlive = j.optBoolean("gui_alive")
-        val logLines = j.optInt("log_lines")
+        val logSize = j.optLong("log_size")
         val configs = runCatching {
             val arr = JSONObject(get("$BASE/configs", HTTP_TIMEOUT_MS) ?: return@runCatching null)
                 .getJSONArray("configs")
@@ -167,7 +168,7 @@ class AlasRunController(
         _state.update {
             it.copy(
                 reachable = true, runnerAlive = runnerAlive, pid = pid,
-                guiAlive = guiAlive, logLines = logLines, logTail = tail,
+                guiAlive = guiAlive, logSize = logSize, logTail = tail,
                 configs = configs, runningConfig = runningConfig,
                 toolAlive = toolAlive, toolName = toolName,
             )
