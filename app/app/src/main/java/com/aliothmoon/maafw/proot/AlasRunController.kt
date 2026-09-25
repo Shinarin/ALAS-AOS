@@ -1,15 +1,18 @@
 package com.aliothmoon.maafw.proot
 
 import android.content.Context
+import android.os.SystemClock
 import com.aliothmoon.maafw.MaaDispatchers
+import com.aliothmoon.maafw.service.AppForegroundTracker
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withTimeoutOrNull
 import org.json.JSONObject
 import timber.log.Timber
 import java.net.HttpURLConnection
@@ -77,13 +80,24 @@ class AlasRunController(
     private val started = AtomicBoolean(false)
     private val refreshMutex = Mutex()
 
+    /** wrapper /status 连续失败计数与上次记日志时刻（只被 refreshMutex 保护的块读写） */
+    private var wrapperFailStreak = 0
+    private var lastWrapperFailLogAtMs = 0L
+
+    /** 最近一次 GET 的失败原因：get 不直接记日志，留给 refreshLocked 做节流 */
+    private var lastGetFailure: Throwable? = null
+
     /** 幂等：挂到 MaaFwApp.postCreate，轮询整个 App 生命周期 */
     fun start() {
         if (!started.compareAndSet(false, true)) return
         scope.launch(MaaDispatchers.IO) {
             while (true) {
                 refreshMutex.withLock { refreshLocked() }
-                delay(POLL_MS)
+                // 没在跑任何任务且 App 在后台：纯空转，退避到 30s；其余场景维持 4s
+                val s = _state.value
+                val idle = !s.runnerAlive && !s.toolAlive
+                val interval = if (idle && !AppForegroundTracker.foreground.value) IDLE_POLL_MS else POLL_MS
+                withTimeoutOrNull(interval) { AppForegroundTracker.poke.first() }
             }
         }
     }
@@ -126,6 +140,8 @@ class AlasRunController(
             }.onFailure { Timber.w(it, "alas POST %s failed", url) }
             refreshMutex.withLock { refreshLocked() }
             _state.update { it.copy(busy = false) }
+            // 动作后运行态可能翻转（如刚停掉 runner 进入空闲档），唤醒轮询立刻按新节奏跑
+            AppForegroundTracker.poke()
         }
     }
 
@@ -133,6 +149,22 @@ class AlasRunController(
     private fun refreshLocked() {
         val body = get("$BASE/status", HTTP_TIMEOUT_MS)
         if (body == null) {
+            // 失败日志状态沿：首败记一条，持续失败每 5 分钟最多一条心跳，恢复记 recovered
+            wrapperFailStreak++
+            val now = SystemClock.elapsedRealtime()
+            when {
+                wrapperFailStreak == 1 -> {
+                    Timber.d(lastGetFailure, "wrapper /status unreachable")
+                    lastWrapperFailLogAtMs = now
+                }
+                now - lastWrapperFailLogAtMs >= WRAPPER_FAIL_LOG_HEARTBEAT_MS -> {
+                    Timber.d(
+                        "wrapper /status still unreachable (streak=%d): %s",
+                        wrapperFailStreak, lastGetFailure?.message,
+                    )
+                    lastWrapperFailLogAtMs = now
+                }
+            }
             _state.update {
                 it.copy(
                     reachable = false, runnerAlive = false, pid = null,
@@ -142,6 +174,10 @@ class AlasRunController(
                 )
             }
             return
+        }
+        if (wrapperFailStreak > 0) {
+            Timber.d("wrapper /status recovered after %d failures", wrapperFailStreak)
+            wrapperFailStreak = 0
         }
         val j = runCatching { JSONObject(body) }.getOrNull() ?: return
         val runnerAlive = j.optBoolean("runner_alive")
@@ -181,11 +217,13 @@ class AlasRunController(
         conn.readTimeout = timeoutMs
         if (conn.responseCode != 200) return null
         conn.inputStream.use { String(it.readBytes(), Charsets.UTF_8) }
-    }.onFailure { Timber.d(it, "alas GET %s failed", url) }.getOrNull()
+    }.onFailure { lastGetFailure = it }.getOrNull()
 
     private companion object {
         const val BASE = "http://127.0.0.1:${ProotHost.WRAPPER_PORT}"
         const val POLL_MS = 4_000L
+        const val IDLE_POLL_MS = 30_000L
+        const val WRAPPER_FAIL_LOG_HEARTBEAT_MS = 300_000L
         const val HTTP_TIMEOUT_MS = 1_500
         const val POST_READ_TIMEOUT_MS = 12_000
         const val LOG_TAIL = 80

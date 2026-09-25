@@ -188,10 +188,14 @@ fun AlasScreen(
                         }
                     }
                     webView = this
+                    AlasWebViewHolder.register(this)
                     loadUrl(ALAS_WEBUI_URL)
                 }
             },
-            onRelease = { it.destroy() },
+            onRelease = {
+                AlasWebViewHolder.unregister(it)
+                it.destroy()
+            },
             modifier = Modifier.fillMaxSize(),
         )
 

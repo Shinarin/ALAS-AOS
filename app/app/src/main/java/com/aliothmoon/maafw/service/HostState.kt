@@ -1,6 +1,7 @@
 package com.aliothmoon.maafw.service
 
 import android.content.Context
+import android.os.SystemClock
 import android.view.Surface
 import com.aliothmoon.maafw.BuildConfig
 import com.aliothmoon.maafw.MaaDispatchers
@@ -8,7 +9,6 @@ import com.aliothmoon.maafw.constant.DefaultDisplayConfig
 import com.aliothmoon.maafw.privileged.PrivilegedServicePort
 import com.aliothmoon.maafw.privileged.PrivilegedServiceState
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -18,6 +18,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withTimeout
+import kotlinx.coroutines.withTimeoutOrNull
 import org.json.JSONObject
 import timber.log.Timber
 import java.io.BufferedInputStream
@@ -54,6 +55,9 @@ class HostState(
     /** 桥探测连续失败计数（只被 probeMutex 保护的块读写） */
     private var probeFailStreak = 0
 
+    /** 上次记失败日志的时刻（elapsedRealtime），持续失败的心跳节流用 */
+    private var lastProbeFailLogAtMs = 0L
+
     fun start() {
         scope.launch {
             servicePort.serviceState.collect { state ->
@@ -69,27 +73,54 @@ class HostState(
         scope.launch(MaaDispatchers.IO) {
             while (true) {
                 probeBridgeNow()
-                delay(BRIDGE_PROBE_INTERVAL_MS)
+                // 环境没起且 App 在后台：纯空转，退避到 30s；其余场景维持 4s
+                val idle = _snapshot.value.vdDisplayId == DefaultDisplayConfig.DISPLAY_NONE
+                val interval = if (idle && !AppForegroundTracker.foreground.value) {
+                    BRIDGE_PROBE_IDLE_INTERVAL_MS
+                } else {
+                    BRIDGE_PROBE_INTERVAL_MS
+                }
+                withTimeoutOrNull(interval) { AppForegroundTracker.poke.first() }
             }
         }
     }
 
     suspend fun probeBridgeNow(): Boolean = probeMutex.withLock {
+        var failReason: String? = null
         val reachable = runCatching { pingBridge() }
-            .onFailure { Timber.d("bridge probe failed: %s", it.message) }
+            .onFailure { failReason = it.message }
             .getOrDefault(false)
         if (reachable) {
-            probeFailStreak = 0
+            if (probeFailStreak > 0) {
+                Timber.d("bridge probe recovered after %d failures", probeFailStreak)
+                probeFailStreak = 0
+            }
             _snapshot.update { it.copy(bridgeReachable = true) }
         } else {
             // 挂机满负荷（ALAS 每帧 2.7MB 打 screencap）时单次 ping 超时是常态，
             // 连续 BRIDGE_FAIL_THRESHOLD 次失败才判不可达，与 FGS「桥抖动不撤保活」对齐
             probeFailStreak++
+            logProbeFailureThrottled(failReason)
             if (probeFailStreak >= BRIDGE_FAIL_THRESHOLD) {
                 _snapshot.update { it.copy(bridgeReachable = false) }
             }
         }
         reachable
+    }
+
+    /** 失败日志状态沿：首败记一条，持续失败每 5 分钟最多一条心跳，恢复成功记 recovered */
+    private fun logProbeFailureThrottled(reason: String?) {
+        val now = SystemClock.elapsedRealtime()
+        when {
+            probeFailStreak == 1 -> {
+                Timber.d("bridge probe failed: %s", reason ?: "no pong")
+                lastProbeFailLogAtMs = now
+            }
+            now - lastProbeFailLogAtMs >= PROBE_FAIL_LOG_HEARTBEAT_MS -> {
+                Timber.d("bridge probe still failing (streak=%d): %s", probeFailStreak, reason ?: "no pong")
+                lastProbeFailLogAtMs = now
+            }
+        }
     }
 
     /**
@@ -132,6 +163,8 @@ class HostState(
         }
         // 建完屏（或本来就有屏）顺手刷一次桥态，UI 不必干等下个探测周期
         probeBridgeNow()
+        // 环境态已翻转，唤醒轮询循环立刻按新节奏跑
+        AppForegroundTracker.poke()
         return _snapshot.value.vdDisplayId != DefaultDisplayConfig.DISPLAY_NONE
     }
 
@@ -144,6 +177,8 @@ class HostState(
             }
             _snapshot.update { it.copy(vdDisplayId = DefaultDisplayConfig.DISPLAY_NONE) }
         }
+        // 屏已撤，轮询进入空闲档；poke 让循环立刻重算间隔
+        AppForegroundTracker.poke()
     }
 
     /**
@@ -212,7 +247,9 @@ class HostState(
         const val BRIDGE_HOST = "127.0.0.1"
         const val BRIDGE_PORT = 22300
         const val BRIDGE_PROBE_INTERVAL_MS = 4_000L
+        const val BRIDGE_PROBE_IDLE_INTERVAL_MS = 30_000L
         const val BRIDGE_FAIL_THRESHOLD = 2
+        const val PROBE_FAIL_LOG_HEARTBEAT_MS = 300_000L
         const val BRIDGE_CONNECT_TIMEOUT_MS = 1_500
         const val BRIDGE_READ_TIMEOUT_MS = 2_000
         const val CONNECT_WAIT_MS = 12_000L

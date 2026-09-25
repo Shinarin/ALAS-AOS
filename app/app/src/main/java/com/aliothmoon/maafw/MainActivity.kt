@@ -15,6 +15,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.aliothmoon.maafw.proot.AlasRunController
 import com.aliothmoon.maafw.settings.AppSettingsManager
 import com.aliothmoon.maafw.ui.AppRoot
+import com.aliothmoon.maafw.ui.alas.AlasWebViewHolder
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 
@@ -44,6 +45,18 @@ class MainActivity : AppCompatActivity() {
         setContent {
             AppRoot(onDarkThemeChanged = ::applyEdgeToEdge)
         }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        // 回前台：恢复 ALAS WebUI 的 WebView（退后台时被 pauseAll 停过）
+        AlasWebViewHolder.resumeAll()
+    }
+
+    override fun onStop() {
+        // App 整体退后台：停 WebView 渲染与 JS 定时器，省 CPU/电量
+        AlasWebViewHolder.pauseAll()
+        super.onStop()
     }
 
     private fun applyEdgeToEdge(darkMode: Boolean) {
