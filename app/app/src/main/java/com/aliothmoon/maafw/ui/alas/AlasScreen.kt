@@ -19,7 +19,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -41,6 +40,7 @@ import com.aliothmoon.maafw.proot.ProotHost
 import com.aliothmoon.maafw.proot.ProotPhase
 import com.aliothmoon.maafw.service.HostState
 import com.aliothmoon.maafw.theme.MaaDesignTokens
+import com.aliothmoon.maafw.ui.components.MaaButton
 import org.koin.compose.koinInject
 
 /** ALAS WebUI：App 内置环境监听的本机回环地址 */
@@ -249,7 +249,7 @@ fun AlasScreen(
                         color = MaterialTheme.colorScheme.onBackground,
                     )
                     Spacer(Modifier.height(MaaDesignTokens.Spacing.lg))
-                    Button(
+                    MaaButton(
                         onClick = {
                             loadFailed = false
                             if (prootState.phase == ProotPhase.FAILED || prootState.phase == ProotPhase.IDLE) {
