@@ -18,8 +18,10 @@ rootfs 内（构建脚本已把 overlays 应用到 /opt/alas，并把本脚本 c
 ----
 默认（CI 模式）：
     1. 模型加载（det+rec session 建立，alive() 为真）
-    2. 合成数字行图 rec：PIL 白底黑字 10 组 + 反相（浅色字深色底）3 组，断言完全匹配
-    3. 2D 灰度单通道（ndim==2）输入，验证 3ch 堆叠分支
+    2. azur_lane numpy 引擎断言：ModelProxy._al 非 None，回落 PP-OCR 即 FAIL
+      （门监会盲区修复：模型缺失时 rpc 静默回落，不断言则 numpy 引擎零验证）
+    3. 合成数字行图 rec：PIL 白底黑字 10 组 + 反相（浅色字深色底）3 组，断言完全匹配
+    4. 2D 灰度单通道（ndim==2）输入，验证 3ch 堆叠分支
 --real-dir DIR：
     对目录内 *.png 真实行图（文件名 stem 即期望文本，如 13750.png）逐张 rec，
     输出逐样本结果与总正确率，>=98% 才 PASS（m0 DoD 口径）。
@@ -118,6 +120,27 @@ def load_rpc(rpc_path):
     return mod
 
 
+def load_al_numpy(rpc_path):
+    """按路径预载 rpc.py 旁边的 al_numpy.py，注册成 module.ocr.al_numpy。
+
+    不打这个补丁，门禁 stub 的 module 包 __path__ 为空，rpc.py 顶层
+    `from module.ocr.al_numpy import AlNumpyOcr` 必失败 → AlNumpyOcr=None →
+    azur_lane 恒回落 PP-OCR，numpy 引擎永远验不到（模型文件铺了也白铺）。
+    """
+    al_path = os.path.join(os.path.dirname(os.path.abspath(rpc_path)), 'al_numpy.py')
+    if not os.path.isfile(al_path):
+        print(f'note: al_numpy.py not found next to rpc.py ({al_path}); azur_lane will fall back to PP-OCR')
+        return False
+    ocr_pkg = types.ModuleType('module.ocr')
+    ocr_pkg.__path__ = []
+    sys.modules['module.ocr'] = ocr_pkg
+    spec = importlib.util.spec_from_file_location('module.ocr.al_numpy', al_path)
+    mod = importlib.util.module_from_spec(spec)
+    sys.modules['module.ocr.al_numpy'] = mod
+    spec.loader.exec_module(mod)
+    return True
+
+
 def find_rpc_path(arg):
     if arg:
         return arg
@@ -179,6 +202,21 @@ def test_model_load(rpc, request_human_takeover):
         _record('model_load', False, f'alive() raised: {e!r}')
         return False
     _record('model_load', ok, 'det+rec sessions ready' if ok else 'alive() is False')
+    return ok
+
+
+def test_azur_lane_engine(rpc):
+    """azur_lane 必须真实加载 numpy 字体模型，回落 PP-OCR 即 FAIL。
+
+    判定信号 = ModelProxy._al 句柄（rpc.py `_get_al_engine` 的返回值）：
+    模型缺失/加载失败时 rpc 静默回落 PP-OCR（_al=None），门禁若不断言它，
+    全绿也从未验过 numpy 引擎——这正是本断言存在的原因（批次 G2）。
+    """
+    proxy = rpc.ModelProxy(lang='azur_lane')
+    ok = proxy._al is not None
+    _record('azur_lane_numpy_engine', ok,
+            'numpy engine loaded' if ok else
+            'azur_lane weights missing/load failed -> PP-OCR fallback (gate requires the real numpy engine)')
     return ok
 
 
@@ -321,11 +359,13 @@ def main():
     except ImportError as e:
         print(f'OCR_GATE FAIL: missing dependency: {e}')
         return 1
+    load_al_numpy(rpc_path)
     rpc = load_rpc(rpc_path)
 
     all_ok = True
     loaded = test_model_load(rpc, request_human_takeover)
     all_ok &= loaded
+    all_ok &= test_azur_lane_engine(rpc)
     if loaded:
         try:
             from PIL import Image, ImageDraw, ImageFont  # noqa: F401

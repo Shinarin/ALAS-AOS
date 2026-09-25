@@ -59,6 +59,9 @@ require_file() {
   fi
 }
 require_file "$ASSETS/overlays/module/ocr/rpc.py"
+require_file "$ASSETS/overlays/module/ocr/al_numpy.py"
+require_file "$ASSETS/overlays/models/ocr/azur_lane/weights.npz"
+require_file "$ASSETS/overlays/models/ocr/azur_lane/label_cn.txt"
 require_file "$ASSETS/overlays/wrapper.py"
 require_file "$ASSETS/overlays/runner.py"
 require_file "$ASSETS/build/spike-f-ocr-gate.py"
@@ -217,6 +220,20 @@ install -D -m 0755 "$ASSETS/seeds/env_fix.sh" "$ROOTFS_DIR/opt/alas/seeds/env_fi
 install -D -m 0644 "$ASSETS/models/ocr/det.onnx"  "$ROOTFS_DIR/opt/alas/models/ocr/det.onnx"
 install -D -m 0644 "$ASSETS/models/ocr/rec.onnx"  "$ROOTFS_DIR/opt/alas/models/ocr/rec.onnx"
 install -D -m 0644 "$ASSETS/models/ocr/keys.txt"  "$ROOTFS_DIR/opt/alas/models/ocr/keys.txt"
+
+# azur_lane numpy 字体模型（上游 cnocr 权重的纯 numpy 移植）：rpc.py `_get_al_engine`
+# 按 $ALASAOS_OCR_MODEL_DIR/azur_lane/（默认 ./models/ocr/azur_lane/，相对 ALAS 根）加载。
+# 真机上这两份由 APK assets（alas/overlay→""）交付；rootfs 不铺则 CI 的 Spike F 门禁
+# 恒走 PP-OCR 回落，numpy 引擎零验证（权重 +3.4MB 可接受）
+install -D -m 0644 "$ASSETS/overlays/models/ocr/azur_lane/weights.npz" \
+    "$ROOTFS_DIR/opt/alas/models/ocr/azur_lane/weights.npz"
+install -D -m 0644 "$ASSETS/overlays/models/ocr/azur_lane/label_cn.txt" \
+    "$ROOTFS_DIR/opt/alas/models/ocr/azur_lane/label_cn.txt"
+
+# al_numpy.py 同理：overlay 应用面只 cp rpc.py（下文第 7 节），不铺它则 rpc.py 顶层
+# `from module.ocr.al_numpy import AlNumpyOcr` 失败 → AlNumpyOcr=None → 同样恒回落
+install -D -m 0644 "$ASSETS/overlays/module/ocr/al_numpy.py" \
+    "$ROOTFS_DIR/opt/alas/module/ocr/al_numpy.py"
 
 # ---------- 7. wrapper / runner / Spike F 门禁（并行任务产物，fail-fast 已在开头验过） ----------
 # 门禁脚本也装进 /opt/alas：workflow 的 Spike F gate step 直接在 chroot 里跑它，
