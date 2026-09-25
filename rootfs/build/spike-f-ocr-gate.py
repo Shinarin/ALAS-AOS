@@ -20,8 +20,11 @@ rootfs 内（构建脚本已把 overlays 应用到 /opt/alas，并把本脚本 c
     1. 模型加载（det+rec session 建立，alive() 为真）
     2. azur_lane numpy 引擎断言：ModelProxy._al 非 None，回落 PP-OCR 即 FAIL
       （门监会盲区修复：模型缺失时 rpc 静默回落，不断言则 numpy 引擎零验证）
-    3. 合成数字行图 rec：PIL 白底黑字 10 组 + 反相（浅色字深色底）3 组，断言完全匹配
-    4. 2D 灰度单通道（ndim==2）输入，验证 3ch 堆叠分支
+    3. 合成数字行图 rec：PIL 白底黑字 10 组 + 反相（浅色字深色底）3 组，断言完全匹配。
+      走 lang='cn'（PP-OCR 通用路径）——lang='azur_lane' 在 G2 后会真路由到 numpy
+      字体引擎（39 类游戏字体字符集），读通用 PIL 字体合成数字必错（0→D/5→S/6→B），
+      那不是本用例要验的对象；本用例验的是 PP-OCR rec
+    4. 2D 灰度单通道（ndim==2）输入，验证 3ch 堆叠分支（同走 lang='cn'）
 --real-dir DIR：
     对目录内 *.png 真实行图（文件名 stem 即期望文本，如 13750.png）逐张 rec，
     输出逐样本结果与总正确率，>=98% 才 PASS（m0 DoD 口径）。
@@ -222,7 +225,9 @@ def test_azur_lane_engine(rpc):
 
 def test_synthetic(rpc, font, request_human_takeover):
     import numpy as np
-    proxy = rpc.ModelProxy(lang='azur_lane')
+    # lang='cn'：合成数字验的是 PP-OCR 通用 rec；azur_lane 会路由到 numpy 字体引擎（39 类
+    # 游戏字符集），读通用 PIL 字体必错——numpy 引擎的正确性由 load 断言 + --real-dir 真帧担
+    proxy = rpc.ModelProxy(lang='cn')
     total = 0
     failed = 0
     for text in SYNTH_CASES:
@@ -260,8 +265,8 @@ def test_synthetic(rpc, font, request_human_takeover):
 
 
 def test_gray2d(rpc, font, request_human_takeover):
-    """2D 灰度单通道（ndim==2）直接喂，验证 rpc.py 的 3ch 堆叠分支（m0 硬坑）。"""
-    proxy = rpc.ModelProxy(lang='azur_lane')
+    """2D 灰度单通道（ndim==2）直接喂，验证 rpc.py 的 3ch 堆叠分支（m0 硬坑，PP-OCR 路径）。"""
+    proxy = rpc.ModelProxy(lang='cn')
     failed = 0
     for text in GRAY2D_CASES:
         arr2d = make_line_image(text, font, inverted=False)  # shape (h, w) uint8

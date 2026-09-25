@@ -11,6 +11,10 @@ pluginManagement {
                 includeGroupByRegex("com\\.android.*")
                 includeGroupByRegex("com\\.google.*")
                 includeGroupByRegex("androidx.*")
+                // Google Maven 的 KSP 停在 1.5.30-1.0.0（2.x 只发 Maven Central/插件门户）：
+                // com.google.devtools.* 走 Google 系必 404，且实测会毒化整条解析链
+                // （空仓/CI 全灭），排除后落 AliyunCentral/Central 解析
+                excludeGroupByRegex("com\\.google\\.devtools.*")
             }
         }
         google {
@@ -18,6 +22,7 @@ pluginManagement {
                 includeGroupByRegex("com\\.android.*")
                 includeGroupByRegex("com\\.google.*")
                 includeGroupByRegex("androidx.*")
+                excludeGroupByRegex("com\\.google\\.devtools.*")
             }
         }
         maven {
