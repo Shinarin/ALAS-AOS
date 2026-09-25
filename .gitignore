@@ -36,3 +36,7 @@ spike/**/dist/*.apk
 # 阶段三：rootfs 资产随包内置（300MB+ 不入库，构建前从 rootfs-dist 拷入）；BUILD_MANIFEST 入库
 /app/app/src/main/assets/rootfs/rootfs.tar.xz
 /keystore/
+
+# 账册本地化（2026-09-25 用户决策）：devlog/handoff 只留本地，不 commit 不 push
+/devlog.md
+/handoff/
