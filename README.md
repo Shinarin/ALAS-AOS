@@ -3,6 +3,8 @@
 > 免 root，把《碧蓝航线》自动化脚本 [ALAS](https://github.com/LmeSzinc/AzurLaneAutoScript) 装进你的 Android 手机——游戏跑在**后台虚拟屏**里挂机，前台刷视频、回消息、打游戏，互不干扰。🎉
 >
 > **名字由来**：`AOS` = **ALAS on Android OS**——ALAS 的 Android 系统版。
+>
+> ⚠️ **兼容性说明**：各家手机渲染方案不一致，极个别场景可能识别失败，可借助 AI 针对自己的机型自行适配。本仓库只做基本可行性测试。
 
 [![License](https://img.shields.io/badge/license-AGPL--3.0-blue.svg)](./LICENSE)
 [![Release](https://img.shields.io/github/v/release/Shinarin/ALAS-AOS)](https://github.com/Shinarin/ALAS-AOS/releases)
@@ -17,6 +19,7 @@
 - 🫧 **悬浮窗面板**：App 不在前台也能随时启停挂机、盯实时日志。
 - 👆 **全屏手动模式**：想自己点两下？预览画面一键全屏，手指直接操作游戏，退出后画面无缝回卡。
 - 🧰 **内置小工具**：半自动点击、活动剧情等 ALAS 工具任务可独立运行，与挂机自动互斥，不抢设备。
+- 🌐 **中英双语 + 深浅色主题**：界面语言跟随系统或手动切换（切换会重载项目）；主题支持浅色/深色/跟随系统。
 
 ## 🧭 工作原理（一图流）
 
@@ -57,7 +60,7 @@ Shizuku 是开源的特权桥接工具，让普通 App 也能使用系统级能�
 
 ### 第 2 步：安装 ALAS-AOS
 
-1. 到 [Release 页](https://github.com/Shinarin/ALAS-AOS/releases) 下载 `ALAS-AOS-v<版本号>-android-arm64.apk`（约 300MB，运行环境已内置，所以这么大）。
+1. 到 [Release 页](https://github.com/Shinarin/ALAS-AOS/releases) 下载 `ALAS-AOS-v<版本号>-android-arm64.apk`（约 330MB，运行环境已内置，所以这么大）。
 2. 安装并打开，按引导完成 **Shizuku 授权**。
 3. 耐心等待首启部署（解压运行环境 + 热更新检查），完成后自动进入挂机页。🎊
 
