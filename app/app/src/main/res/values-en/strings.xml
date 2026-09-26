@@ -12,6 +12,12 @@
     <!-- Settings screen -->
     <string name="settings_section_display">Display</string>
     <string name="settings_section_other">Other</string>
+    <string name="settings_alas_mirror">ALAS mirror</string>
+    <string name="settings_alas_mirror_cn">China CDN</string>
+    <string name="settings_alas_mirror_github">GitHub</string>
+    <string name="settings_alas_mirror_pending">A full sync from %1$s will run on next launch</string>
+    <string name="dialog_alas_mirror_title">Switch ALAS mirror</string>
+    <string name="dialog_alas_mirror_message">ALAS code will be fully re-synced from the new mirror on next launch, which may take a while. Switch now?</string>
     <string name="settings_theme">Theme</string>
     <string name="settings_theme_style">Theme style</string>
     <string name="settings_follow_system">System default</string>
@@ -66,15 +72,6 @@
     <!-- Navigation & dialogs -->
     <string name="nav_alas">ALAS</string>
     <string name="nav_settings">Settings</string>
-
-    <!-- ALAS tab: WebUI container -->
-    <string name="alas_webui_not_running">ALAS is served by the app\'s built-in environment. The first launch needs initialization; if it stays down, check the runtime environment and retry</string>
-    <string name="alas_webui_retry">Retry connection</string>
-    <string name="alas_webui_loading">Loading console…</string>
-    <string name="proot_phase_preparing">Preparing runtime environment…</string>
-    <string name="proot_phase_updating">Hot-updating ALAS…</string>
-    <string name="proot_phase_starting">Starting ALAS service…</string>
-    <string name="proot_phase_failed">Failed to start ALAS environment: %1$s</string>
 
     <!-- Hangar tab: virtual display preview + run config + control panel -->
     <string name="nav_hangar">Farming</string>
@@ -164,4 +161,18 @@
     <string name="provision_failed">Setup failed: %1$s</string>
     <string name="provision_retry">Retry</string>
     <string name="provision_skip">Skip (debug only)</string>
+
+    <!-- ALAS tab: startup checklist card -->
+    <string name="alas_boot_title">Starting ALAS</string>
+    <string name="alas_boot_step_provision">Deploy runtime environment</string>
+    <string name="alas_boot_step_privileged">Connect privileged service</string>
+    <string name="alas_boot_step_display">Create virtual display</string>
+    <string name="alas_boot_step_bridge">Bridge connectivity</string>
+    <string name="alas_boot_step_prepare">Prepare ALAS runtime</string>
+    <string name="alas_boot_step_update">Check hot update</string>
+    <string name="alas_boot_step_service">Start ALAS service</string>
+    <string name="alas_boot_step_page">Load console page</string>
+    <string name="alas_boot_page_failed">Page failed to load</string>
+    <string name="alas_boot_update_degraded">Update failed; using the existing version (%1$s)</string>
+    <string name="alas_boot_retry">Retry</string>
 </resources>

@@ -23,6 +23,7 @@ import os
 import re
 import shutil
 import sys
+import time
 import urllib.error
 import urllib.request
 import zipfile
@@ -63,13 +64,33 @@ def fetch_latest():
 
 
 def download_pack(base, latest, current, alas_dir):
-    """下增量包并把 pack/idx 落进 .git/objects/pack/；返回 (ok, reason)。"""
+    """下增量包并把 pack/idx 落进 .git/objects/pack/；返回 (ok, reason)。
+
+    分块读 + 进度旁路：每 256KB 往 ALASAOS_UPDATE_PROGRESS 写一行
+    `CDN 12.3/45.6 MB · 280 KB/s`，App 侧轮询喂给启动清单卡片。
+    """
     url = f'{base}/{latest}/{current}.zip'
     print(f'cdn| Fetch url: {url}')
+    progress_file = os.environ.get('ALASAOS_UPDATE_PROGRESS', '')
     try:
         opener = urllib.request.build_opener(urllib.request.ProxyHandler({}))
         with opener.open(url, timeout=PACK_TIMEOUT) as resp:
-            data = resp.read()
+            total = int(resp.headers.get('Content-Length') or 0)
+            chunks, done, start = [], 0, time.monotonic()
+            while True:
+                chunk = resp.read(262144)
+                if not chunk:
+                    break
+                chunks.append(chunk)
+                done += len(chunk)
+                if progress_file:
+                    elapsed = max(time.monotonic() - start, 1e-3)
+                    speed = done / elapsed
+                    speed_txt = f'{speed / 1048576:.1f} MB/s' if speed >= 1048576 else f'{speed / 1024:.0f} KB/s'
+                    total_txt = f'{total / 1048576:.1f}' if total else '?'
+                    with open(progress_file, 'w', encoding='utf-8') as f:
+                        f.write(f'CDN {done / 1048576:.1f}/{total_txt} MB · {speed_txt}')
+            data = b''.join(chunks)
     except urllib.error.HTTPError as e:
         return False, f'NO_PACK http-{e.code}'
     except Exception as e:

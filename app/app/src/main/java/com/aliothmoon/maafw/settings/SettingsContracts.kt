@@ -1,5 +1,6 @@
 package com.aliothmoon.maafw.settings
 
+import com.aliothmoon.maafw.domain.AlasMirror
 import com.aliothmoon.maafw.domain.RemoteBackend
 import com.aliothmoon.maafw.domain.ThemeMode
 import com.aliothmoon.maafw.privileged.RemoteAccessState
@@ -16,7 +17,12 @@ data class SettingsUiState(
     val themeMode: ThemeMode = ThemeMode.System,
     val themeStyle: ThemeStyle = ThemeStyle.DEFAULT,
     val autoCleanLogs: Boolean = true,
-)
+    val alasMirror: AlasMirror = AlasMirror.CN,
+    val alasMirrorSynced: AlasMirror = AlasMirror.CN,
+) {
+    /** 镜像档已切但尚未同步成功：下次启动强制全量重同步 */
+    val alasMirrorDirty: Boolean get() = alasMirror != alasMirrorSynced
+}
 
 sealed interface SettingsIntent {
     /** 切换 Shizuku / Root 后端；落到 AppSettings.startupBackend 并断开当前特权进程 */
@@ -30,4 +36,7 @@ sealed interface SettingsIntent {
     data class SetLanguage(val tag: String?) : SettingsIntent
 
     data class SetAutoCleanLogs(val enabled: Boolean) : SettingsIntent
+
+    /** 切换 ALAS 镜像档；落盘后下次启动全量重同步（确认弹窗在 Screen 侧） */
+    data class SetAlasMirror(val mirror: AlasMirror) : SettingsIntent
 }

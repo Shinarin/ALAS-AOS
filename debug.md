@@ -4,6 +4,19 @@
 > **历史坑点（m0 阶段，全真机实证）见 `m0-archive/docs/debug.md` 与 `m0-archive/docs/devlog/`。** 高频索引：
 > WebView `vh` 塌缩（注入 innerHeight 修复）｜幻影进程查杀（`max_phantom_processes` / `settings_enable_monitor_phantom_procs`）｜mDNS `_adb-tls-connect` 端口过期但广播残留｜MaaFW PP-OCR 对 2D 单通道静默返空（堆叠 3ch）｜MaaFW 截图 BGR↔ALAS RGB 翻转｜RUN_COMMAND 权限只授清单声明方｜`am force-stop` 杀不掉 shell uid 残留（须显式 kill）｜桥 30s 无流量判死（10s 心跳）。
 
+## [2026-09-26] VPN fake-ip 全局劫持下 proot 直连 TCP 全灭：GitHub 档必须走系统 HTTP 代理；curl http=000/毫秒级瞬断是特征指纹
+
+- **现象**：镜像源切到 GitHub 档后，用户已开 Clash 系 VPN（com.vortex）全局，force-full 仍反复失败——`Failed to connect to github.com port 443 after 4 ms`。手机端 ping/DNS 表象正常，唯 TCP 建连秒死。
+- **取证**（alasaos_update.sh 的 diag| 五行，仅 force-full 输出）：`getent ahostsv4 github.com` 返回 **198.18.0.17**（fake-ip 段，证明 VPN TUN 劫持了 proot 进程 DNS，`Uids: {0-99999}` 含本 app）；`curl -w %{time_connect}` 对 fake-ip 与 --resolve 钉死真实 IP 均 **conn=0.000000s**（内核级瞬拒）；但 `dumpsys connectivity` 显示 VPN 通告系统 HTTP 代理 `HttpProxy: [127.62.122.112] 43401`，`curl -x` 走它 **200/0.9s**。环回代理不受 TUN/UID 分流约束。
+- **解决方案**：GitHub 档热更新全程走系统代理——App 侧 `ConnectivityManager.getDefaultProxy()` 读 ProxyInfo（**地址端口随 VPN 启动会变，不能硬编码**）拼 `http://host:port` 注入 `ALASAOS_UPDATE_PROXY`；脚本开头非空即 export `http_proxy/https_proxy`（git/curl 原生认）。CN 档不注入（lyoko 直连不需要）。**教训：VPN 全局 + fake-ip 环境下，"直连 000 瞬断 + 代理 200" 是对照指纹；Android 读系统代理用 `ConnectivityManager.getDefaultProxy()`，别读已废弃的 `Proxy.getDefaultHost()`。已知限制：VPN 全局下 CN 档直连通道（CDN pack/git://）同样全灭——fake-ip 固有影响，对上游 ALAS 国区镜像同等成立。**
+
+## [2026-09-26] 镜像切换的 .git 推倒重建是单程票：GitHub→CN 方向必须保留对象树（CDN 增量要吃旧基对象）
+
+- **现象**：CN 回切 force-full 三连败——第一轮 VPN 未关（fake-ip 秒拒）；关 VPN 后 lyoko git:// fetch 被运营商限速烧满 240s×3；且首轮已 `rm -rf .git`，CDN 增量包失去基对象彻底不可用，险些死锁（CN 档唯一通道恰好全断）。
+- **根本原因**：lyoko 与 GitHub 是**同一棵上游对象树**（sha 互通）——GitHub 档 force-full 拉来的对象可以直接给 CN CDN 增量当底；CN 方向推 .git 等于自毁快照。原设计两档一刀切推 .git 是过度概括。
+- **解决方案**（真机实证修订，alasaos_update.sh）：force-full 两档分流——**GitHub 档**（NO_CDN 恒置）：先 `ls-remote` 60s 探活（不可达 fast-fail 保 .git）→ 推 .git → `git_repository_init` 浅拉（fetch 改 `--depth`，全量历史数百 MB 手机吃不消）3×5s；**CN 档**：不推 .git、跳过退避，落正常双通道（CDN→git://）。另加两道保险：CDN 入口 `git cat-file -e $current^{commit}` 缺对象即跳过（增量包无基可打）；CDN reset --hard 失败不再终局 fail，落回 git:// 重建。App 侧 force-full 超时预算 300s→780s（脚本内 3×(240+5)≈735s），否则单次慢 fetch 烧穿总预算让 3 次重试形同虚设。
+- **验证**：GitHub 档 force-full 成功（UPDATED 01c0a01，全程代理）；CN 回切 force-full 走「CDN 跳过（缺对象）→ git:// ls-remote 秒回 == current → UNCHANGED 零下载」，脏标记清除、常驻小字消失、RUNNING。
+
 ## [2026-09-25] Google Maven 停更 KSP（1.5.30 封顶）：`com.google.*` 过滤器把 KSP 2.x 解析毒化到全链失败
 
 - **现象**：push 后 app CI 首跑红——`Plugin [id: 'com.google.devtools.ksp', version: '2.3.9'] was not found`，MavenLocal/AliyunGoogle/Google/AliyunCentral/MavenRepo/Portal 六源全 not found；rerun 45 秒同错（非瞬时）。本机日常构建永远正常。

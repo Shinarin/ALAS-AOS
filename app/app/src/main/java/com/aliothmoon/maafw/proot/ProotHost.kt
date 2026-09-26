@@ -1,8 +1,10 @@
 package com.aliothmoon.maafw.proot
 
 import android.app.Application
+import android.net.ConnectivityManager
 import com.aliothmoon.maafw.MaaDispatchers
 import com.aliothmoon.maafw.constant.AppPaths
+import com.aliothmoon.maafw.domain.AlasMirror
 import com.aliothmoon.maafw.service.RunForegroundService
 import com.aliothmoon.maafw.settings.AppSettingsManager
 import kotlinx.coroutines.CoroutineScope
@@ -109,22 +111,34 @@ class ProotHost(
             return@withLock
         }
 
+        // 镜像档：git 仓库 / CDN pack / pip 源一起切；与上次热更新成功档不一致 = 本次强制全量重同步
+        val mirror = currentMirror()
+        val mirrorDirty = mirror != settings.alasMirrorSynced.value
+
         setState(ProotPhase.PREPARING, "环境自检修复")
         // 幂等：imageio 钉回上游 2.27.0（T2 崩溃根因=环境未钉版）+ git 还原旧补丁遗留；
         // 断网/git 不可用一律降级为日志警告，不阻塞启动（对齐 seed_config 哲学）。
         // proot 下 pip 比原生慢一个量级（首次降级实测 >60s），给独立长超时
-        runGuest(listOf("/bin/bash", "seeds/env_fix.sh"), ENV_FIX_TIMEOUT_MS)?.let { r ->
+        runGuest(
+            listOf("/bin/bash", "seeds/env_fix.sh"),
+            ENV_FIX_TIMEOUT_MS,
+            mapOf("ALASAOS_PYPI_MIRROR" to mirror.pypiMirror),
+        )?.let { r ->
             r.output.lineSequence().filter { it.isNotBlank() }.forEach { Timber.i("env_fix| %s", it) }
             // 失败时输出必须落盘：FileLogTree 只收 W+，i 级逐行在 release 包不可见
             if (r.exit != 0) Timber.w("env_fix exit=%s out=%s", r.exit, r.output.takeLast(500))
         }
 
         setState(ProotPhase.PREPARING, "播种实例配置")
-        // 幂等（config/alas.json 已存在即跳过）；失败不阻塞——WebUI 也能救
+        // 幂等（config/alas.json 已存在即跳过）；失败不阻塞——WebUI 也能救。
+        // ALASAOS_MIRROR 驱动 deploy.yaml 的 Repository/PypiMirror 两键随档改写
         runGuest(
             listOf("/usr/bin/python3", "seeds/seed_config.py"),
             SHORT_EXEC_MS,
-            mapOf("ALASAOS_ALAS_ROOT" to GUEST_ALAS_ROOT),
+            mapOf(
+                "ALASAOS_ALAS_ROOT" to GUEST_ALAS_ROOT,
+                "ALASAOS_MIRROR" to mirror.seedValue,
+            ),
         )?.let { r ->
             if (r.exit != 0) Timber.w("seed_config exit=%s out=%s", r.exit, r.output.take(300))
         }
@@ -132,8 +146,44 @@ class ProotHost(
         if (!updateAttempted) {
             updateAttempted = true
             setState(ProotPhase.UPDATING, "检查 ALAS 热更新")
-            val update = AlasUpdater { cmd, timeout -> runGuestRaw(cmd, timeout) }.update()
+            val updateEnv = buildMap {
+                put("ALASAOS_UPDATE_REPO", mirror.updateRepo)
+                if (mirror.noCdn) put("ALASAOS_UPDATE_NO_CDN", "1")
+                if (mirrorDirty) put("ALASAOS_UPDATE_FORCE_FULL", "1")
+                // GitHub 档走系统 HTTP 代理：VPN fake-ip 劫持下 proot 内直连 TCP 被内核秒拒
+                // （实测 direct=000/3ms，经代理 200/0.9s）；CN 档 lyoko 直连不需要
+                if (mirror == AlasMirror.GITHUB) {
+                    systemHttpProxyUrl()?.let { put("ALASAOS_UPDATE_PROXY", it) }
+                        ?: Timber.w("github mirror but no system http proxy; direct connect will likely fail")
+                }
+            }
+            // 进度旁路：脚本把 git --progress / CDN 分块进度写 .alasaos_update_progress，
+            // 每秒取最后一个 \r/\n 段落喂给清单卡片热更新行的 detail 小字
+            val progressFile = File(alasDir, ".alasaos_update_progress")
+            runCatching { progressFile.delete() }
+            val progressPoller = scope.launch(MaaDispatchers.IO) {
+                while (true) {
+                    val seg = runCatching {
+                        progressFile.readText().split('\r', '\n').lastOrNull { it.isNotBlank() }?.trim()
+                    }.getOrNull()
+                    if (!seg.isNullOrEmpty()) {
+                        _state.update { it.copy(detail = seg.take(120)) }
+                    }
+                    delay(1000)
+                }
+            }
+            val update = try {
+                AlasUpdater { cmd, timeout -> runGuestRaw(cmd, timeout, updateEnv) }
+                    .update(if (mirrorDirty) AlasUpdater.FORCE_FULL_TIMEOUT_MS else AlasUpdater.TIMEOUT_MS)
+            } finally {
+                progressPoller.cancel()
+            }
             _state.update { it.copy(updateResult = update.summary) }
+            // 通道打通（UPDATED/UNCHANGED）才把镜像档标记为已同步；失败保持脏，下次启动继续全量重同步
+            if (update.succeeded) {
+                runCatching { settings.setAlasMirrorSynced(mirror) }
+                    .onFailure { Timber.w(it, "alasMirrorSynced write failed") }
+            }
             if (update.updated) {
                 // reset --hard 打回了上游跟踪文件：重放补丁；assets_fix 失败=漂移，记警告不阻塞
                 setState(ProotPhase.PREPARING, "重放本地补丁")
@@ -376,6 +426,21 @@ class ProotHost(
     }
 
     // ------------------------------------------------------------------ 自愈清理与 DNS
+
+    /** 镜像档读盘是异步的：最多等一拍，等不到按 schema 默认档（CN）走，不卡启动链 */
+    private suspend fun currentMirror(): AlasMirror {
+        withTimeoutOrNull(SETTINGS_LOADED_WAIT_MS) { settings.loaded.first { it } }
+        return settings.alasMirror.value
+    }
+
+    /** 系统 HTTP 代理（VPN 通告的 HttpProxy，地址/端口随 VPN 启动会变，不能硬编码） */
+    private fun systemHttpProxyUrl(): String? {
+        val cm = app.getSystemService(ConnectivityManager::class.java) ?: return null
+        val info = runCatching { cm.defaultProxy }.getOrNull() ?: return null
+        val host = info.host?.takeIf { it.isNotBlank() } ?: return null
+        if (info.port <= 0) return null
+        return "http://$host:${info.port}"
+    }
 
     /** 自愈清锁：proot 临时目录整体重来 + git 锁 + reloadalas（会话不在跑时才可调） */
     private suspend fun cleanupStale() {

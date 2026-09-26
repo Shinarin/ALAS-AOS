@@ -22,7 +22,7 @@ class SettingsViewModel(
     private val userConfigurationStore: UserConfigurationStore,
 ) : ViewModel() {
 
-    val uiState: StateFlow<SettingsUiState> = combine(
+    private val baseState = combine(
         permissionGateway.state,
         userConfigurationStore.data,
         appSettings.themeStyle,
@@ -34,6 +34,15 @@ class SettingsViewModel(
             themeStyle = themeStyle,
             autoCleanLogs = autoCleanLogs,
         )
+    }
+
+    // combine 类型化重载最多 5 路：镜像两档并到第二段，保持全程有类型
+    val uiState: StateFlow<SettingsUiState> = combine(
+        baseState,
+        appSettings.alasMirror,
+        appSettings.alasMirrorSynced,
+    ) { base, alasMirror, alasMirrorSynced ->
+        base.copy(alasMirror = alasMirror, alasMirrorSynced = alasMirrorSynced)
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5_000),
@@ -58,6 +67,10 @@ class SettingsViewModel(
 
             is SettingsIntent.SetAutoCleanLogs -> viewModelScope.launch {
                 appSettings.setAutoCleanLogs(intent.enabled)
+            }
+
+            is SettingsIntent.SetAlasMirror -> viewModelScope.launch {
+                appSettings.setAlasMirror(intent.mirror)
             }
         }
     }

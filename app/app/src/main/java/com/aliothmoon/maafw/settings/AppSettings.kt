@@ -41,4 +41,12 @@ data class AppSettings(
     @PrefKey(default = "DEFAULT")
     val themeStyle: String = "DEFAULT",
 
+    /** [com.aliothmoon.maafw.domain.AlasMirror] 的 name；ALAS 热更新 git/CDN/pip 一起切 */
+    @PrefKey(default = "CN")
+    val alasMirror: String = "CN",
+
+    /** 上次热更新成功时生效的镜像档；与 alasMirror 不一致 = 下次启动强制全量重同步 */
+    @PrefKey(default = "CN")
+    val alasMirrorSynced: String = "CN",
+
 )

@@ -18,21 +18,25 @@ class AlasUpdater(
         val updated: Boolean,
         /** 给人看的摘要：UPDATED <sha> / UNCHANGED <sha> / SKIPPED <reason> */
         val summary: String,
-    )
+    ) {
+        /** UPDATED/UNCHANGED 才算通道打通；SKIPPED 是降级（镜像脏标记按它决定回写与否） */
+        val succeeded: Boolean get() = !summary.startsWith("SKIPPED")
+    }
 
     /**
      * 跑一次更新；永不抛异常——任何失败都折叠成 SKIPPED
-     * 超时给足脚本内部 `timeout 240` 之外的余量
+     * 默认超时给足脚本内部 `timeout 240` 之外的余量；force-full（镜像档切换）
+     * 内部是 3×(240s fetch + 5s 间隔)，调用方需传 FORCE_FULL_TIMEOUT_MS
      */
-    suspend fun update(): Result {
+    suspend fun update(timeoutMs: Long = TIMEOUT_MS): Result {
         val result = runCatching {
-            exec(listOf("/bin/bash", "seeds/alasaos_update.sh"), TIMEOUT_MS)
+            exec(listOf("/bin/bash", "seeds/alasaos_update.sh"), timeoutMs)
         }.getOrElse {
             Timber.w(it, "hot update exec failed")
             return Result(false, "SKIPPED exec: ${it.message}")
         }
         if (result.timedOut) {
-            Timber.w("hot update timed out after %dms", TIMEOUT_MS)
+            Timber.w("hot update timed out after %dms", timeoutMs)
             return Result(false, "SKIPPED timeout")
         }
         result.output.lineSequence().forEach { Timber.d("alasaos_update| %s", it) }
@@ -62,8 +66,11 @@ class AlasUpdater(
         }
     }
 
-    private companion object {
+    companion object {
         /** 脚本内部 timeout 默认 240s；这里留 60s 余量做兜底杀 */
         const val TIMEOUT_MS = 300_000L
+
+        /** force-full：脚本内 3×(240s fetch + 5s 间隔) ≈ 735s，再留余量 */
+        const val FORCE_FULL_TIMEOUT_MS = 780_000L
     }
 }

@@ -6,6 +6,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.preferencesDataStore
 import com.aliothmoon.maafw.MaaDispatchers
+import com.aliothmoon.maafw.domain.AlasMirror
 import com.aliothmoon.maafw.domain.OverlayControlMode
 import com.aliothmoon.maafw.domain.RemoteBackend
 import com.aliothmoon.maafw.theme.ThemeStyle
@@ -67,6 +68,12 @@ class AppSettingsManager(private val context: Context) : AppSettingsGateway {
     private val _themeStyle = MutableStateFlow(parseThemeStyle(defaults.themeStyle))
     override val themeStyle: StateFlow<ThemeStyle> = _themeStyle.asStateFlow()
 
+    private val _alasMirror = MutableStateFlow(parseAlasMirror(defaults.alasMirror))
+    override val alasMirror: StateFlow<AlasMirror> = _alasMirror.asStateFlow()
+
+    private val _alasMirrorSynced = MutableStateFlow(parseAlasMirror(defaults.alasMirrorSynced))
+    override val alasMirrorSynced: StateFlow<AlasMirror> = _alasMirrorSynced.asStateFlow()
+
     init {
         // 一处 collect 铺开到各字段，而不是每个字段各起一条 stateIn：
         // 那样 loaded 置位与各字段拿到首值是两件并发的事，早读的人仍可能读到默认值
@@ -78,6 +85,8 @@ class AppSettingsManager(private val context: Context) : AppSettingsGateway {
                 _overlayControlMode.value = parseOverlayMode(s.overlayControlMode)
                 _autoCleanLogs.value = s.autoCleanLogs.toBoolean()
                 _themeStyle.value = parseThemeStyle(s.themeStyle)
+                _alasMirror.value = parseAlasMirror(s.alasMirror)
+                _alasMirrorSynced.value = parseAlasMirror(s.alasMirrorSynced)
                 // 必须是最后一行：置位即宣告上面全部就位
                 _loaded.value = true
             }
@@ -104,6 +113,15 @@ class AppSettingsManager(private val context: Context) : AppSettingsGateway {
         context.dataStore.edit { it[themeStyle] = style.name }
     }
 
+    override suspend fun setAlasMirror(mirror: AlasMirror): Unit = with(AppSettingsSchema) {
+        context.dataStore.edit { it[alasMirror] = mirror.name }
+    }
+
+    /** 只由 ProotHost 在热更新成功后回写；设置页不改它 */
+    suspend fun setAlasMirrorSynced(mirror: AlasMirror): Unit = with(AppSettingsSchema) {
+        context.dataStore.edit { it[alasMirrorSynced] = mirror.name }
+    }
+
     /** 盘上是历史遗留或手改的非法值时回落默认，不让设置读取本身抛异常 */
     private fun parseBackend(raw: String): RemoteBackend =
         runCatching { RemoteBackend.valueOf(raw) }.getOrDefault(RemoteBackend.SHIZUKU)
@@ -113,4 +131,7 @@ class AppSettingsManager(private val context: Context) : AppSettingsGateway {
 
     private fun parseThemeStyle(raw: String): ThemeStyle =
         runCatching { ThemeStyle.valueOf(raw) }.getOrDefault(ThemeStyle.DEFAULT)
+
+    private fun parseAlasMirror(raw: String): AlasMirror =
+        runCatching { AlasMirror.valueOf(raw) }.getOrDefault(AlasMirror.CN)
 }

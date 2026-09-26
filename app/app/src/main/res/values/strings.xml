@@ -12,6 +12,12 @@
     <!-- 设置页；分组命名沿用上游 MaaFwApp 系的 settings_section_* 约定 -->
     <string name="settings_section_display">显示设置</string>
     <string name="settings_section_other">其他设置</string>
+    <string name="settings_alas_mirror">ALAS 镜像源</string>
+    <string name="settings_alas_mirror_cn">国内 CDN</string>
+    <string name="settings_alas_mirror_github">GitHub</string>
+    <string name="settings_alas_mirror_pending">将于下次启动从 %1$s 全量同步</string>
+    <string name="dialog_alas_mirror_title">切换 ALAS 镜像源</string>
+    <string name="dialog_alas_mirror_message">下次启动将从新镜像全量重新同步 ALAS 代码，耗时较长。确定切换？</string>
     <string name="settings_theme">主题</string>
     <string name="settings_theme_style">主题风格</string>
     <string name="settings_follow_system">跟随系统</string>
@@ -66,15 +72,6 @@
     <!-- 导航与对话框 -->
     <string name="nav_alas">ALAS</string>
     <string name="nav_settings">设置</string>
-
-    <!-- ALAS tab：WebUI 容器 -->
-    <string name="alas_webui_not_running">ALAS 服务由 App 内置环境提供，首次启动需完成初始化；若长时间未恢复，请检查运行环境后重试</string>
-    <string name="alas_webui_retry">重试连接</string>
-    <string name="alas_webui_loading">正在载入控制台…</string>
-    <string name="proot_phase_preparing">正在准备运行环境…</string>
-    <string name="proot_phase_updating">正在热更新 ALAS…</string>
-    <string name="proot_phase_starting">正在启动 ALAS 服务…</string>
-    <string name="proot_phase_failed">ALAS 环境启动失败：%1$s</string>
 
     <!-- 挂机 tab：虚拟屏画面 + 运行配置 + 控制面板 -->
     <string name="nav_hangar">挂机</string>
@@ -164,4 +161,18 @@
     <string name="provision_failed">部署失败：%1$s</string>
     <string name="provision_retry">重试</string>
     <string name="provision_skip">跳过（仅调试用）</string>
+
+    <!-- ALAS 页启动阶段清单卡 -->
+    <string name="alas_boot_title">正在启动 ALAS</string>
+    <string name="alas_boot_step_provision">部署运行环境</string>
+    <string name="alas_boot_step_privileged">连接特权服务</string>
+    <string name="alas_boot_step_display">创建虚拟屏</string>
+    <string name="alas_boot_step_bridge">桥接连通</string>
+    <string name="alas_boot_step_prepare">准备 ALAS 运行环境</string>
+    <string name="alas_boot_step_update">检查热更新</string>
+    <string name="alas_boot_step_service">启动 ALAS 服务</string>
+    <string name="alas_boot_step_page">加载控制台页面</string>
+    <string name="alas_boot_page_failed">页面加载失败</string>
+    <string name="alas_boot_update_degraded">更新失败，使用现有版本（%1$s）</string>
+    <string name="alas_boot_retry">重试</string>
 </resources>

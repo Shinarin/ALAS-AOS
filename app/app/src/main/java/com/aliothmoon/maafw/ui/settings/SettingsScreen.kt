@@ -27,6 +27,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.res.stringResource
 import com.aliothmoon.maafw.BuildConfig
 import com.aliothmoon.maafw.R
+import com.aliothmoon.maafw.domain.AlasMirror
 import com.aliothmoon.maafw.domain.RemoteBackend
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
@@ -240,10 +241,13 @@ private fun LogCard(
 }
 
 /**
- * 启动模式（特权后端）：「跑起来之前得先定」的环境选项（对齐 MaaMeow 的「其他设置」）
+ * 启动模式（特权后端）与 ALAS 镜像源：「跑起来之前得先定」的环境选项（对齐 MaaMeow 的「其他设置」）
+ *
+ * 镜像换档先弹确认（下次启动全量重同步，耗时以分钟计）；已切未同步时常驻一行小字提示
  */
 @Composable
 private fun OtherCard(state: SettingsUiState, onIntent: (SettingsIntent) -> Unit) {
+    var pendingMirror by remember { mutableStateOf<AlasMirror?>(null) }
     MaaCard(title = stringResource(R.string.settings_section_other), collapsible = true) {
         MaaFieldLabel(stringResource(R.string.permission_backend))
         MaaSingleChoiceFlow(
@@ -251,6 +255,45 @@ private fun OtherCard(state: SettingsUiState, onIntent: (SettingsIntent) -> Unit
             options = RemoteBackend.entries.map { it to it.display },
             selected = state.remoteAccess.configuredBackend,
             onSelect = { onIntent(SettingsIntent.SetBackend(it)) },
+        )
+        Spacer(Modifier.height(MaaDesignTokens.Spacing.sm))
+        MaaFieldLabel(stringResource(R.string.settings_alas_mirror))
+        val mirrors = listOf(
+            AlasMirror.CN to stringResource(R.string.settings_alas_mirror_cn),
+            AlasMirror.GITHUB to stringResource(R.string.settings_alas_mirror_github),
+        )
+        MaaSingleChoiceFlow(
+            options = mirrors,
+            selected = state.alasMirror,
+            onSelect = { if (it != state.alasMirror) pendingMirror = it },
+        )
+        if (state.alasMirrorDirty) {
+            Text(
+                text = stringResource(
+                    R.string.settings_alas_mirror_pending,
+                    mirrors.first { it.first == state.alasMirror }.second,
+                ),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+    }
+    pendingMirror?.let { target ->
+        AlertDialog(
+            onDismissRequest = { pendingMirror = null },
+            title = { Text(stringResource(R.string.dialog_alas_mirror_title)) },
+            text = { Text(stringResource(R.string.dialog_alas_mirror_message)) },
+            confirmButton = {
+                TextButton(onClick = {
+                    pendingMirror = null
+                    onIntent(SettingsIntent.SetAlasMirror(target))
+                }) { Text(stringResource(R.string.dialog_confirm)) }
+            },
+            dismissButton = {
+                TextButton(onClick = { pendingMirror = null }) {
+                    Text(stringResource(R.string.dialog_cancel))
+                }
+            },
         )
     }
 }

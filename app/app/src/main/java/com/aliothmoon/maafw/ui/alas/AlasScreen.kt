@@ -8,20 +8,30 @@ import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.activity.compose.BackHandler
+import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Check
+import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -32,15 +42,24 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.aliothmoon.maafw.BuildConfig
 import com.aliothmoon.maafw.R
+import com.aliothmoon.maafw.constant.DefaultDisplayConfig
+import com.aliothmoon.maafw.proot.AlasRunController
+import com.aliothmoon.maafw.proot.AlasRunState
 import com.aliothmoon.maafw.proot.ProotHost
 import com.aliothmoon.maafw.proot.ProotPhase
+import com.aliothmoon.maafw.proot.ProotSnapshot
+import com.aliothmoon.maafw.provision.ProvisionState
+import com.aliothmoon.maafw.provision.RootfsProvisioner
+import com.aliothmoon.maafw.service.HostSnapshot
 import com.aliothmoon.maafw.service.HostState
 import com.aliothmoon.maafw.theme.MaaDesignTokens
-import com.aliothmoon.maafw.ui.components.MaaButton
+import com.aliothmoon.maafw.theme.MaaTheme
+import com.aliothmoon.maafw.ui.components.MaaCard
 import org.koin.compose.koinInject
 
 /** ALAS WebUI：App 内置环境监听的本机回环地址 */
@@ -101,6 +120,9 @@ private const val IDLE_SPINNER_FIX_JS =
  *
  * 本页可见且特权连接就绪时自动补一次「开始」链路建虚拟屏（HostState 内幂等，
  * 断线重连后随 privilegedConnected 翻转会再触发）
+ *
+ * 开屏遮罩是启动阶段清单卡（[AlasBootCard]）：各行勾按真实信号落，
+ * 控制台页面就绪（pageReady）后整卡随遮罩淡出
  */
 @SuppressLint("SetJavaScriptEnabled")
 @Composable
@@ -109,6 +131,8 @@ fun AlasScreen(
     modifier: Modifier = Modifier,
     hostState: HostState = koinInject(),
     prootHost: ProotHost = koinInject(),
+    provisioner: RootfsProvisioner = koinInject(),
+    alasController: AlasRunController = koinInject(),
 ) {
     var loadFailed by remember { mutableStateOf(false) }
     var pageReady by remember { mutableStateOf(false) }
@@ -116,6 +140,14 @@ fun AlasScreen(
     var webView by remember { mutableStateOf<WebView?>(null) }
     val hostSnapshot by hostState.snapshot.collectAsStateWithLifecycle()
     val prootState by prootHost.state.collectAsStateWithLifecycle()
+    val provisionState by provisioner.state.collectAsStateWithLifecycle()
+    val alasState by alasController.state.collectAsStateWithLifecycle()
+
+    // FAILED 只留当前态不留来处：记住它之前处于哪个阶段，清单据此把 ✗ 挂到对应行
+    var lastActivePhase by remember { mutableStateOf(ProotPhase.IDLE) }
+    LaunchedEffect(prootState.phase) {
+        if (prootState.phase != ProotPhase.FAILED) lastActivePhase = prootState.phase
+    }
 
     LaunchedEffect(active, hostSnapshot.privilegedConnected) {
         if (active && hostSnapshot.privilegedConnected) {
@@ -210,7 +242,7 @@ fun AlasScreen(
                     .fillMaxSize()
                     .background(MaterialTheme.colorScheme.background)
                     .pointerInput(Unit) {
-                        // 挡住穿透到 WebView 上的漏点，载入/错误时只留重试按钮可点
+                        // 挡住穿透到 WebView 上的漏点，启动期间只留行内重试可点
                         awaitPointerEventScope {
                             while (true) {
                                 awaitPointerEvent().changes.forEach { it.consume() }
@@ -221,50 +253,290 @@ fun AlasScreen(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center,
             ) {
-                // 只有这两种算真失败：启动链自己挂了，或服务明明该活着页却进不来
-                val failureText = when {
-                    prootState.phase == ProotPhase.FAILED ->
-                        stringResource(R.string.proot_phase_failed, prootState.detail)
+                AlasBootCard(
+                    provisionState = provisionState,
+                    hostSnapshot = hostSnapshot,
+                    prootState = prootState,
+                    alasState = alasState,
+                    lastActivePhase = lastActivePhase,
+                    loadFailed = loadFailed,
+                    pageReady = pageReady,
+                    onRetryProvision = { provisioner.retry() },
+                    onRetryStartup = {
+                        loadFailed = false
+                        if (prootState.phase == ProotPhase.FAILED || prootState.phase == ProotPhase.IDLE) {
+                            prootHost.ensureStarted()
+                        }
+                        webView?.loadUrl(ALAS_WEBUI_URL)
+                    },
+                )
+            }
+        }
+    }
+}
 
-                    loadFailed && (prootState.phase == ProotPhase.IDLE ||
-                        prootState.phase == ProotPhase.RUNNING) ->
-                        stringResource(R.string.alas_webui_not_running)
+private enum class BootRowState { Pending, Running, Done, Failed }
 
+/** 行内小字的色调：进行中明细 / 警告 / 错误摘要 */
+private enum class BootRowTone { Normal, Warning, Error }
+
+private class BootRow(
+    @param:StringRes val labelRes: Int,
+    val state: BootRowState,
+    val detail: String? = null,
+    val tone: BootRowTone = BootRowTone.Normal,
+    val onRetry: (() -> Unit)? = null,
+)
+
+/**
+ * 启动阶段清单卡：8 行固定顺序，勾按真实信号落（允许跳跃式打勾），
+ * 底部一条总进度条。行 1 只在部署状态机非 Ready（首启/升版）时出现，
+ * 此时分母为 8，否则为 7
+ */
+@Composable
+private fun AlasBootCard(
+    provisionState: ProvisionState,
+    hostSnapshot: HostSnapshot,
+    prootState: ProotSnapshot,
+    alasState: AlasRunState,
+    lastActivePhase: ProotPhase,
+    loadFailed: Boolean,
+    pageReady: Boolean,
+    onRetryProvision: () -> Unit,
+    onRetryStartup: () -> Unit,
+) {
+    val phase = prootState.phase
+    val showProvisionRow = provisionState !is ProvisionState.Ready
+
+    // 「越过哪站」判定与挂机页状态小字同口径（AlasControlPanel 的 when 分支）
+    val prepDone = phase == ProotPhase.UPDATING || phase == ProotPhase.STARTING ||
+            phase == ProotPhase.RUNNING
+    // FAILED 落在准备链上：从没进过热更新/启动（含 sanityCheck 直接败在 IDLE）
+    val prepFailed = phase == ProotPhase.FAILED &&
+            (lastActivePhase == ProotPhase.IDLE || lastActivePhase == ProotPhase.PREPARING)
+    val startFailed = phase == ProotPhase.FAILED && !prepFailed
+
+    val updateResult = prootState.updateResult
+    val updateDone = phase == ProotPhase.STARTING || phase == ProotPhase.RUNNING || updateResult != null
+    // 热更新失败不阻塞启动：勾照打，只留警告小字（摘要取自 updater 的 SKIPPED 行）
+    val updateDegraded = updateDone && updateResult?.startsWith("SKIPPED") == true
+
+    val serviceDone = alasState.reachable && alasState.guiAlive
+    // 服务活着但主文档进不来才算行 8 失败；启动链自己挂的 ✗ 在行 5/7
+    val pageFailed = loadFailed && (phase == ProotPhase.IDLE || phase == ProotPhase.RUNNING)
+
+    val rows = buildList {
+        if (showProvisionRow) {
+            add(
+                when (val s = provisionState) {
+                    is ProvisionState.Extracting -> BootRow(
+                        R.string.alas_boot_step_provision,
+                        BootRowState.Running,
+                        detail = stringResource(
+                            R.string.provision_extracting,
+                            if (s.totalBytes > 0) (s.doneBytes * 100 / s.totalBytes).toInt() else 0,
+                            s.doneBytes / 1_000_000,
+                            s.totalBytes / 1_000_000,
+                        ),
+                    )
+
+                    is ProvisionState.Failed -> BootRow(
+                        R.string.alas_boot_step_provision,
+                        BootRowState.Failed,
+                        detail = stringResource(R.string.provision_failed, s.reason),
+                        tone = BootRowTone.Error,
+                        onRetry = onRetryProvision,
+                    )
+
+                    is ProvisionState.LowDisk -> BootRow(
+                        R.string.alas_boot_step_provision,
+                        BootRowState.Failed,
+                        detail = stringResource(R.string.provision_low_disk, s.freeBytes / 1_000_000),
+                        tone = BootRowTone.Error,
+                        onRetry = onRetryProvision,
+                    )
+
+                    ProvisionState.NotBundled -> BootRow(
+                        R.string.alas_boot_step_provision,
+                        BootRowState.Failed,
+                        detail = stringResource(R.string.provision_not_bundled),
+                        tone = BootRowTone.Error,
+                        onRetry = onRetryProvision,
+                    )
+
+                    // Checking（Ready 时本行不显示）
+                    else -> BootRow(R.string.alas_boot_step_provision, BootRowState.Running)
+                }
+            )
+        }
+        add(
+            BootRow(
+                R.string.alas_boot_step_privileged,
+                when {
+                    hostSnapshot.privilegedConnected -> BootRowState.Done
+                    showProvisionRow -> BootRowState.Pending
+                    else -> BootRowState.Running
+                },
+            )
+        )
+        add(
+            BootRow(
+                R.string.alas_boot_step_display,
+                when {
+                    hostSnapshot.vdDisplayId != DefaultDisplayConfig.DISPLAY_NONE -> BootRowState.Done
+                    hostSnapshot.privilegedConnected -> BootRowState.Running
+                    else -> BootRowState.Pending
+                },
+            )
+        )
+        add(
+            BootRow(
+                R.string.alas_boot_step_bridge,
+                when {
+                    hostSnapshot.bridgeReachable -> BootRowState.Done
+                    hostSnapshot.vdDisplayId != DefaultDisplayConfig.DISPLAY_NONE -> BootRowState.Running
+                    else -> BootRowState.Pending
+                },
+            )
+        )
+        add(
+            BootRow(
+                R.string.alas_boot_step_prepare,
+                when {
+                    prepDone -> BootRowState.Done
+                    prepFailed -> BootRowState.Failed
+                    phase == ProotPhase.PREPARING -> BootRowState.Running
+                    else -> BootRowState.Pending
+                },
+                detail = when {
+                    prepFailed -> prootState.detail
+                    phase == ProotPhase.PREPARING -> prootState.detail.ifEmpty { null }
                     else -> null
-                }
-                if (failureText == null) {
-                    // 载入开屏：首次 loadUrl 撞上服务未起是必然事件，不给用户看错误脸
-                    CircularProgressIndicator()
-                    Spacer(Modifier.height(MaaDesignTokens.Spacing.lg))
-                    Text(
-                        text = when (prootState.phase) {
-                            ProotPhase.PREPARING -> stringResource(R.string.proot_phase_preparing)
-                            ProotPhase.UPDATING -> stringResource(R.string.proot_phase_updating)
-                            ProotPhase.STARTING -> stringResource(R.string.proot_phase_starting)
-                            else -> stringResource(R.string.alas_webui_loading)
-                        },
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onBackground,
-                    )
-                } else {
-                    Text(
-                        text = failureText,
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onBackground,
-                    )
-                    Spacer(Modifier.height(MaaDesignTokens.Spacing.lg))
-                    MaaButton(
-                        onClick = {
-                            loadFailed = false
-                            if (prootState.phase == ProotPhase.FAILED || prootState.phase == ProotPhase.IDLE) {
-                                prootHost.ensureStarted()
-                            }
-                            webView?.loadUrl(ALAS_WEBUI_URL)
-                        },
-                    ) {
-                        Text(stringResource(R.string.alas_webui_retry))
-                    }
-                }
+                },
+                tone = if (prepFailed) BootRowTone.Error else BootRowTone.Normal,
+                onRetry = if (prepFailed) onRetryStartup else null,
+            )
+        )
+        add(
+            BootRow(
+                R.string.alas_boot_step_update,
+                when {
+                    updateDone -> BootRowState.Done
+                    phase == ProotPhase.UPDATING -> BootRowState.Running
+                    else -> BootRowState.Pending
+                },
+                detail = when {
+                    updateDegraded -> stringResource(R.string.alas_boot_update_degraded, updateResult.orEmpty())
+                    // 热更新进行中：实时进度小字（git --progress / CDN 分块旁路，见 ProotHost 轮询）
+                    phase == ProotPhase.UPDATING -> prootState.detail.ifEmpty { null }
+                    else -> null
+                },
+                tone = if (updateDegraded) BootRowTone.Warning else BootRowTone.Normal,
+            )
+        )
+        add(
+            BootRow(
+                R.string.alas_boot_step_service,
+                when {
+                    serviceDone -> BootRowState.Done
+                    startFailed -> BootRowState.Failed
+                    phase == ProotPhase.STARTING || phase == ProotPhase.RUNNING || updateDone ->
+                        BootRowState.Running
+
+                    else -> BootRowState.Pending
+                },
+                detail = if (startFailed) prootState.detail else null,
+                tone = if (startFailed) BootRowTone.Error else BootRowTone.Normal,
+                onRetry = if (startFailed) onRetryStartup else null,
+            )
+        )
+        add(
+            BootRow(
+                R.string.alas_boot_step_page,
+                when {
+                    pageReady -> BootRowState.Done
+                    pageFailed -> BootRowState.Failed
+                    serviceDone -> BootRowState.Running
+                    else -> BootRowState.Pending
+                },
+                detail = if (pageFailed) stringResource(R.string.alas_boot_page_failed) else null,
+                tone = if (pageFailed) BootRowTone.Error else BootRowTone.Normal,
+                onRetry = if (pageFailed) onRetryStartup else null,
+            )
+        )
+    }
+
+    MaaCard(title = stringResource(R.string.alas_boot_title)) {
+        rows.forEach { BootCheckRow(it) }
+        LinearProgressIndicator(
+            progress = { rows.count { it.state == BootRowState.Done } / rows.size.toFloat() },
+            modifier = Modifier.fillMaxWidth(),
+        )
+    }
+}
+
+@Composable
+private fun BootCheckRow(row: BootRow) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(MaaDesignTokens.Spacing.sm),
+    ) {
+        Box(
+            modifier = Modifier.size(MaaDesignTokens.IconSize.md),
+            contentAlignment = Alignment.Center,
+        ) {
+            when (row.state) {
+                BootRowState.Done -> Icon(
+                    imageVector = Icons.Outlined.Check,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(MaaDesignTokens.IconSize.sm),
+                )
+
+                BootRowState.Running -> CircularProgressIndicator(
+                    modifier = Modifier.size(MaaDesignTokens.IconSize.sm),
+                    strokeWidth = 2.dp,
+                )
+
+                BootRowState.Failed -> Icon(
+                    imageVector = Icons.Outlined.Close,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.size(MaaDesignTokens.IconSize.sm),
+                )
+
+                BootRowState.Pending -> Box(
+                    modifier = Modifier
+                        .size(MaaDesignTokens.IconSize.xs)
+                        .border(1.dp, MaterialTheme.colorScheme.outlineVariant, CircleShape),
+                )
+            }
+        }
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = stringResource(row.labelRes),
+                style = MaterialTheme.typography.bodyMedium,
+                color = when (row.state) {
+                    BootRowState.Pending -> MaterialTheme.colorScheme.onSurfaceVariant
+                    else -> MaterialTheme.colorScheme.onSurface
+                },
+            )
+            row.detail?.let {
+                Text(
+                    text = it,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = when (row.tone) {
+                        BootRowTone.Normal -> MaterialTheme.colorScheme.onSurfaceVariant
+                        BootRowTone.Warning -> MaaTheme.palette.warning.content
+                        BootRowTone.Error -> MaterialTheme.colorScheme.error
+                    },
+                )
+            }
+        }
+        row.onRetry?.let {
+            TextButton(onClick = it) {
+                Text(stringResource(R.string.alas_boot_retry))
             }
         }
     }

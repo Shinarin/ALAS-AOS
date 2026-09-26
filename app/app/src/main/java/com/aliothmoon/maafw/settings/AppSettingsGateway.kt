@@ -1,5 +1,6 @@
 package com.aliothmoon.maafw.settings
 
+import com.aliothmoon.maafw.domain.AlasMirror
 import com.aliothmoon.maafw.domain.OverlayControlMode
 import com.aliothmoon.maafw.theme.ThemeStyle
 import kotlinx.coroutines.flow.StateFlow
@@ -17,5 +18,11 @@ interface AppSettingsGateway {
 
     val themeStyle: StateFlow<ThemeStyle>
     suspend fun setThemeStyle(style: ThemeStyle)
+
+    val alasMirror: StateFlow<AlasMirror>
+    suspend fun setAlasMirror(mirror: AlasMirror)
+
+    /** 上次热更新成功时生效的档位；与 [alasMirror] 不一致 = 下次启动全量重同步（只读，写归 ProotHost） */
+    val alasMirrorSynced: StateFlow<AlasMirror>
 
 }

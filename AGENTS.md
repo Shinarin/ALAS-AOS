@@ -107,4 +107,5 @@
 - 本机工具链：系统 SDK/adb 在 `C:\Users\da270\AppData\Local\Android\Sdk`；便携工具链（JDK17/21、SDK 含 ndk/build-tools、gradle 缓存）在 `D:\VSCodeCache\shizku-m\build-env\`（**只读**复用，构建时 GRADLE_USER_HOME 等写目录指向本仓 `.tmp/`）。
 - 真机调试闭环：设备 `AVAY025422002864`，adb shell 命令前必须 `export MSYS_NO_PATHCONV=1`；Windows 侧 adb/python 只吃 Windows 路径。
 - **真机调试纪律（2026-09-15 用户指令）**：禁止私自做锁屏/息屏测验；凡涉及改变屏幕状态的实验（锁屏、息屏、亮屏时长类）必须先经用户确认后再做。
+- **GitHub 源测试纪律（2026-09-26 用户指令）**：凡涉及 GitHub 档拉取/全量同步的真机测试，先提醒用户打开代理再执行。手机直连 github.com 表现为 TCP 瞬断（curl http=000 / 4ms 拒绝），ICMP ping 通不代表 HTTPS 可用；GitHub 档拉取慢/失败属环境限制，不算功能缺陷。
 - **虚拟屏实验纪律（2026-09-15 手势劫持事件后立，不能再有第二次）**：凡创建虚拟屏的实验或代码：① **禁止** `FLAG_SHOULD_SHOW_SYSTEM_DECORATIONS`（AOSP 语义：不设此 flag 的 VD 才不显示 home/导航栏/壁纸；设了 SystemUI 会在 VD 上建手势导航窗口，主屏手势即被劫持，事件详见 `debug.md` 同日条目）；② 实验前后各查一次手势窗口归属（`dumpsys window windows | grep -E 'GestureNav|GestureSilde|NavigationBar'` 必须在 display 0）；③ VD 属主进程必须可一键杀死；实验结束必须清场（杀属主 → `cmd display get-displays -i` 只剩 0）。
