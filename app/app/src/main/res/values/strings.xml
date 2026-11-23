@@ -30,6 +30,21 @@
     <string name="settings_about">关于</string>
     <string name="settings_version">版本</string>
     <string name="settings_build">构建</string>
+    <string name="settings_update_check">检查更新</string>
+    <string name="settings_update_checking">正在检查更新…</string>
+    <string name="settings_update_check_desc">检查 GitHub 最新版本</string>
+    <string name="settings_update_up_to_date">已是最新版本（%1$s）</string>
+    <string name="settings_update_available">发现新版本：%1$s</string>
+    <string name="settings_update_download">下载并安装</string>
+    <string name="settings_update_downloading">正在下载</string>
+    <string name="settings_update_progress">%1$s / %2$s</string>
+    <string name="settings_update_ready">已下载 %1$s，点击安装</string>
+    <string name="settings_update_install">安装更新</string>
+    <string name="settings_update_permission">需要允许安装未知来源应用，授权后返回再点击</string>
+    <string name="settings_update_error_network">检查或下载失败，请检查网络后重试</string>
+    <string name="settings_update_error_asset">未找到适用于本机的安装包</string>
+    <string name="settings_update_error_package">安装包校验失败</string>
+    <string name="settings_update_error_install">无法调起系统安装器</string>
 
     <!-- 通知 -->
     <string name="notification_channel_run">ALAS 运行环境守护</string>
@@ -93,14 +108,9 @@
 
     <!-- 服务状态行：连接态 / 项目加载 / 运行态归约成一句 -->
     <string name="dialog_shizuku_not_installed_title">未检测到 shizuku-m</string>
-    <string name="dialog_shizuku_not_installed_message">本应用依赖 shizuku-m（修改版 Shizuku）提供的特权服务，检测到设备未安装。点「去下载」选择下载源；装完返回本应用会自动重新检测，也可点「我已安装，重新检测」手动触发。</string>
+    <string name="dialog_shizuku_not_installed_message">本应用依赖 shizuku-m（修改版 Shizuku）提供的特权服务，检测到设备未安装。点「去下载」会用手机默认浏览器打开 shizuku-m 下载页；装完返回本应用会自动重新检测，也可点「我已安装，重新检测」手动触发。</string>
     <string name="dialog_shizuku_go_download">去下载</string>
     <string name="dialog_shizuku_install_confirm">我已安装，重新检测</string>
-    <!-- NotInstalled 档的下载源选择弹窗 -->
-    <string name="dialog_shizuku_download_title">下载 Shizuku</string>
-    <string name="dialog_shizuku_download_mod">shizuku-m Releases（推荐 · 本应用配套）</string>
-    <string name="dialog_shizuku_download_official">官方 Shizuku Releases（备选）</string>
-    <string name="dialog_shizuku_download_note">两个地址均在 GitHub：国内直连若打不开，请自备网络环境。装了官方版也不要紧，本应用会引导你卸载后换装 shizuku-m。</string>
     <string name="dialog_shizuku_switch_to_root">切换至 Root 模式</string>
     <string name="dialog_shizuku_skip_check">跳过检查（不推荐）</string>
     <string name="dialog_shizuku_not_running_title">Shizuku 未启动</string>

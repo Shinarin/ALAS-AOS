@@ -246,14 +246,12 @@ class PermissionManager(
         skipCheck: Boolean,
         launchPackage: String,
     ): ShizukuReadiness {
-        val stage = when {
-            // 已跳过就不再付探测那次 IPC 的代价
-            skipCheck -> ShizukuReadinessStage.Ready
-            remoteState.configuredBackend != RemoteBackend.SHIZUKU -> ShizukuReadinessStage.Ready
-            // Sui 在启动时已 init，先报兼容性，别被下面的 shizukuAvailable 抢成 NeedAuth
-            ShizukuManager.isSui -> ShizukuReadinessStage.SuiAvailable
-            remoteState.shizukuGranted -> ShizukuReadinessStage.Ready
-            else -> withContext(MaaDispatchers.IO) {
+        val stage = resolveShizukuReadinessStage(
+            remoteState = remoteState,
+            skipCheck = skipCheck,
+            isSui = ShizukuManager.isSui,
+        ) {
+            withContext(MaaDispatchers.IO) {
                 probeShizukuStage(launchPackage, remoteState.shizukuAvailable)
             }
         }

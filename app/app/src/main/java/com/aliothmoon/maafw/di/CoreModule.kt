@@ -12,6 +12,11 @@ import com.aliothmoon.maafw.constant.DataStoreFile
 import com.aliothmoon.maafw.domain.UserConfiguration
 import com.aliothmoon.maafw.settings.AppSettingsGateway
 import com.aliothmoon.maafw.settings.AppSettingsManager
+import com.aliothmoon.maafw.update.AndroidAppInstallHandler
+import com.aliothmoon.maafw.update.AppInstallHandler
+import com.aliothmoon.maafw.update.AppUpdateManager
+import com.aliothmoon.maafw.update.AppUpdateSource
+import com.aliothmoon.maafw.update.GithubAppUpdateSource
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
@@ -44,4 +49,7 @@ val coreModule = module {
 
     single { AppSettingsManager(androidContext()) }
     single<AppSettingsGateway> { get<AppSettingsManager>() }
+    single<AppUpdateSource> { GithubAppUpdateSource(androidContext()) }
+    single<AppInstallHandler> { AndroidAppInstallHandler(androidContext()) }
+    single { AppUpdateManager(get(), get()) }
 }

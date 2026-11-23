@@ -2,12 +2,17 @@ package com.aliothmoon.maafw.ui.alas
 
 import android.annotation.SuppressLint
 import android.graphics.Bitmap
+import android.net.Uri
 import android.os.Build
+import android.webkit.ValueCallback
+import android.webkit.WebChromeClient
 import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.EnterTransition
@@ -138,6 +143,14 @@ fun AlasScreen(
     var pageReady by remember { mutableStateOf(false) }
     var canGoBack by remember { mutableStateOf(false) }
     var webView by remember { mutableStateOf<WebView?>(null) }
+    val fileChooserController = remember { AlasFileChooserController<Uri>() }
+    val fileChooserLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.StartActivityForResult(),
+    ) { result ->
+        fileChooserController.complete(
+            WebChromeClient.FileChooserParams.parseResult(result.resultCode, result.data),
+        )
+    }
     val hostSnapshot by hostState.snapshot.collectAsStateWithLifecycle()
     val prootState by prootHost.state.collectAsStateWithLifecycle()
     val provisionState by provisioner.state.collectAsStateWithLifecycle()
@@ -181,6 +194,19 @@ fun AlasScreen(
                     // pywebio 是 SPA，JS 与 localStorage 都要开
                     settings.javaScriptEnabled = true
                     settings.domStorageEnabled = true
+                    webChromeClient = object : WebChromeClient() {
+                        override fun onShowFileChooser(
+                            view: WebView?,
+                            callback: ValueCallback<Array<Uri>>?,
+                            params: FileChooserParams?,
+                        ): Boolean {
+                            if (callback == null || params == null) return false
+                            return fileChooserController.show(
+                                callback = { callback.onReceiveValue(it) },
+                                launch = { fileChooserLauncher.launch(params.createIntent()) },
+                            )
+                        }
+                    }
                     webViewClient = object : WebViewClient() {
                         override fun shouldOverrideUrlLoading(
                             view: WebView,
@@ -225,6 +251,7 @@ fun AlasScreen(
                 }
             },
             onRelease = {
+                fileChooserController.cancel()
                 AlasWebViewHolder.unregister(it)
                 it.destroy()
             },

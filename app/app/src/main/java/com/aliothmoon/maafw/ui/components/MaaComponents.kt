@@ -75,12 +75,13 @@ fun MaaCard(
     leading: (@Composable () -> Unit)? = null,
     trailing: (@Composable () -> Unit)? = null,
     collapsible: Boolean = false,
+    initiallyExpanded: Boolean = true,
     // 默认参数不能读 CompositionLocal；innerPadding 两风格同值，静态回落安全
     contentPadding: PaddingValues = PaddingValues(MaaDesignTokens.Card.innerPadding),
     content: @Composable ColumnScope.() -> Unit,
 ) {
     // 不要给 rememberSaveable 传 key：运行时已废弃它，理由正是会绕开位置作用域造成状态串卡
-    var expanded by rememberSaveable { mutableStateOf(true) }
+    var expanded by rememberSaveable { mutableStateOf(initiallyExpanded) }
     val canCollapse = collapsible && title != null
 
     Card(

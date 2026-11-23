@@ -2,7 +2,7 @@
 
 ## 当前状态
 
-**ALAS-AOS**（ALAS 的 AndroidOS 版，2026-09-20 由 MaaAL 更名）：仓库 [github.com/Shinarin/ALAS-AOS](https://github.com/Shinarin/ALAS-AOS)，包名 `io.github.shinarin.alasaos`，最新发布 **v0.1.6**。上游 ALAS 适配钉版 `7d6a415e`（2026-10-08 HEAD，审查见 `docs/upstream-sync-2026-10-12.md`）。
+**ALAS-AOS**（ALAS 的 AndroidOS 版，2026-09-20 由 MaaAL 更名）：仓库 [github.com/Shinarin/ALAS-AOS](https://github.com/Shinarin/ALAS-AOS)，包名 `io.github.shinarin.alasaos`，最新发布 **v0.1.9**。上游 ALAS 适配钉版 `7d6a415e`（2026-10-08 HEAD，审查见 `docs/upstream-sync-2026-10-12.md`）。
 
 已交付功能：三 tab（挂机=游戏画面+操作面板 / ALAS WebUI / 设置）、悬浮窗控制面板（调度器状态 + 开始/停止挂机 + 半透明日志板，唯一控制面）、半自动点击与活动剧情（工具类，不入挂机队列）、开屏热更新（CDN pack 通道，git:// 兜底）、i18n（跟随系统/简体中文/English，切换会重建项目）、主题（跟随系统/浅色/深色 + 默认/Semi Design）、日志区（启动器/ALAS 日志查看、两类导出、冷启自动清理）、启动模式（Shizuku / Root）。
 
@@ -19,6 +19,7 @@
   - `log/` FileLogTree（每批 drain 后即 flush）+ CrashHandler
   - `overlay/` AlasOverlay：APK assets 幂等铺到 /opt/alas（升级路径保险）
   - `privileged/` Shizuku 特权链；`remote/` AIDL RemoteService；`root/` Root 启动模式壳
+  - `update/` GitHub Release 检查、系统代理下载、APK 包名/versionCode/签名校验与系统安装（设置页关于卡入口）
   - `proot/` ProotHost 会话宿主、AlasRunController（wrapper 4s 轮询，空闲+后台退避 30s，失败日志状态沿节流）、AlasUpdater 热更新
   - `provision/` 首启 rootfs 流式解压（纯 Java tar/xz；busybox tar 解 ubuntu 硬链接必炸，不用）
   - `service/` 保活 FGS + AppForegroundTracker（ProcessLifecycleOwner）
@@ -54,7 +55,7 @@ export JAVA_HOME='D:\VSCodeCache\shizku-m\build-env\jdk-17.0.2'
 export GRADLE_USER_HOME='D:\VSCodeCache\maa-alas\.tmp\gradle-home'
 cd app
 cmd //c 'gradlew.bat assembleRelease --console=plain'   # 含 verifyReleaseR8Keeps
-cmd //c 'gradlew.bat testDebugUnitTest --console=plain' # 20 tests（src/test 6 文件）
+cmd //c 'gradlew.bat testDebugUnitTest --console=plain' # 44 tests（src/test 9 文件）
 # APK → app/app/build/outputs/apk/release/app-release.apk
 ```
 

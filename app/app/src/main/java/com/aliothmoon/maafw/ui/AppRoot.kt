@@ -139,6 +139,7 @@ fun AppRoot(
     provisioner: RootfsProvisioner = koinInject(),
 ) {
     val settingsState by settingsViewModel.uiState.collectAsStateWithLifecycle()
+    val updateState by settingsViewModel.updateState.collectAsStateWithLifecycle()
     val readiness by permissionManager.readiness.collectAsStateWithLifecycle()
     val isGranting by permissionManager.isGranting.collectAsStateWithLifecycle()
 
@@ -189,7 +190,7 @@ fun AppRoot(
         // 未装/未启动/未授权时的引导；needsGuidance 为 false 时自身不渲染
         ShizukuReadinessDialog(
             readiness = readiness,
-            // NotInstalled 档：主按钮去下载（弹窗内选源），次按钮 = 用户装完后重跑探测
+            // NotInstalled 档：主按钮用默认浏览器打开下载页，次按钮 = 用户装完后重跑探测
             onRecheck = { permissionManager.refresh() },
             onOpenUrl = { url -> permissionManager.openUrl(context, url) },
             onOpenApp = { permissionManager.openShizuku(context) },
@@ -309,6 +310,7 @@ fun AppRoot(
 
                     TopDestination.Settings -> SettingsScreen(
                         state = settingsState,
+                        updateState = updateState,
                         onIntent = settingsViewModel::onIntent,
                         onOpenAppLog = { navController.navigate(Routes.APP_LOG) },
                         onOpenAlasLog = { navController.navigate(Routes.ALAS_LOG) },

@@ -1,5 +1,7 @@
 package com.aliothmoon.maafw.privileged
 
+import com.aliothmoon.maafw.domain.RemoteBackend
+
 enum class ShizukuReadinessStage {
     /** 未安装 Shizuku，也没检测到 Sui */
     NotInstalled,
@@ -20,6 +22,21 @@ enum class ShizukuReadinessStage {
     Ready,
 }
 
+internal suspend fun resolveShizukuReadinessStage(
+    remoteState: RemoteAccessState,
+    skipCheck: Boolean,
+    isSui: Boolean,
+    probeNotGranted: suspend () -> ShizukuReadinessStage,
+): ShizukuReadinessStage = when {
+    // 已跳过就不再付探测那次 IPC 的代价
+    skipCheck -> ShizukuReadinessStage.Ready
+    remoteState.configuredBackend != RemoteBackend.SHIZUKU -> ShizukuReadinessStage.Ready
+    // Sui 在启动时已 init，先报兼容性，别被下面的 shizukuAvailable 抢成 NeedAuth
+    isSui -> ShizukuReadinessStage.SuiAvailable
+    remoteState.shizukuGranted -> ShizukuReadinessStage.Ready
+    else -> probeNotGranted()
+}
+
 /** moe.shizuku.privileged.api 这个包名下面装的到底是谁（shizuku-m 与官方版同包名） */
 enum class ShizukuFlavor {
     NONE,
@@ -27,11 +44,8 @@ enum class ShizukuFlavor {
     MOD,
 }
 
-/** shizuku-m 下载页：本项目的配套分发，下载引导的首选源 */
+/** shizuku-m 下载页：未安装时由默认浏览器打开 */
 const val SHIZUKU_M_RELEASES_URL = "https://github.com/Shinarin/shizuku-m/releases"
-
-/** 官方 Shizuku 下载页：备选（装上会被判 OfficialConflict，再引导卸载换装 shizuku-m） */
-const val SHIZUKU_OFFICIAL_RELEASES_URL = "https://github.com/RikkaApps/Shizuku/releases"
 
 data class ShizukuReadiness(
     val stage: ShizukuReadinessStage = ShizukuReadinessStage.Ready,

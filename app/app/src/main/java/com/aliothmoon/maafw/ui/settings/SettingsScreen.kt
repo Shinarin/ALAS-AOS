@@ -25,6 +25,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.res.stringResource
+import android.text.format.Formatter
+import androidx.compose.ui.platform.LocalContext
 import com.aliothmoon.maafw.BuildConfig
 import com.aliothmoon.maafw.R
 import com.aliothmoon.maafw.domain.AlasMirror
@@ -35,6 +37,8 @@ import com.aliothmoon.maafw.domain.ThemeMode
 import com.aliothmoon.maafw.i18n.AppLocales
 import com.aliothmoon.maafw.settings.SettingsIntent
 import com.aliothmoon.maafw.settings.SettingsUiState
+import com.aliothmoon.maafw.update.AppUpdateError
+import com.aliothmoon.maafw.update.AppUpdateState
 import com.aliothmoon.maafw.theme.MaaDesignTokens
 import com.aliothmoon.maafw.theme.ThemeStyle
 import com.aliothmoon.maafw.ui.components.MaaCard
@@ -49,6 +53,7 @@ import com.aliothmoon.maafw.ui.components.MaaSwitch
 @Composable
 fun SettingsScreen(
     state: SettingsUiState,
+    updateState: AppUpdateState,
     onIntent: (SettingsIntent) -> Unit,
     // 二级页面与 SAF 都需要 Activity 宿主，导航与弹窗归 AppRoot 那一层
     onOpenAppLog: () -> Unit,
@@ -90,7 +95,7 @@ fun SettingsScreen(
             DisplayCard(state, onIntent)
             LogCard(state, onIntent, onOpenAppLog, onOpenAlasLog, onExportAlasLogs, onExportLauncherLogs)
             OtherCard(state, onIntent)
-            AboutCard()
+            AboutCard(updateState, onIntent)
         }
     }
 }
@@ -180,7 +185,11 @@ private fun LogCard(
     onExportLauncherLogs: () -> Unit,
 ) {
     var showDisableConfirm by remember { mutableStateOf(false) }
-    MaaCard(title = stringResource(R.string.settings_section_log), collapsible = true) {
+    MaaCard(
+        title = stringResource(R.string.settings_section_log),
+        collapsible = true,
+        initiallyExpanded = false,
+    ) {
         MaaNavigationRow(
             label = stringResource(R.string.app_log_title),
             description = stringResource(R.string.settings_log_launcher_desc),
@@ -192,14 +201,14 @@ private fun LogCard(
             onClick = onOpenAlasLog,
         )
         MaaNavigationRow(
-            label = stringResource(R.string.log_export_alas_title),
-            description = stringResource(R.string.settings_log_export_alas_desc),
-            onClick = onExportAlasLogs,
-        )
-        MaaNavigationRow(
             label = stringResource(R.string.log_export_launcher_title),
             description = stringResource(R.string.settings_log_export_launcher_desc),
             onClick = onExportLauncherLogs,
+        )
+        MaaNavigationRow(
+            label = stringResource(R.string.log_export_alas_title),
+            description = stringResource(R.string.settings_log_export_alas_desc),
+            onClick = onExportAlasLogs,
         )
         // 开启直接落盘；关闭先弹确认：关掉之后过期日志只增不减
         MaaLabeledControlRow(
@@ -299,9 +308,94 @@ private fun OtherCard(state: SettingsUiState, onIntent: (SettingsIntent) -> Unit
 }
 
 @Composable
-private fun AboutCard() {
+private fun AboutCard(
+    state: AppUpdateState,
+    onIntent: (SettingsIntent) -> Unit,
+) {
+    val context = LocalContext.current
     MaaCard(title = stringResource(R.string.settings_about), collapsible = true) {
         MaaInfoRow(stringResource(R.string.settings_version), BuildConfig.VERSION_NAME)
         MaaInfoRow(stringResource(R.string.settings_build), BuildConfig.VERSION_CODE.toString())
+
+        val checkDescription = when (state) {
+            AppUpdateState.Idle -> stringResource(R.string.settings_update_check_desc)
+            AppUpdateState.Checking -> stringResource(R.string.settings_update_checking)
+            is AppUpdateState.UpToDate -> stringResource(
+                R.string.settings_update_up_to_date,
+                state.latestVersion,
+            )
+            is AppUpdateState.Available -> stringResource(
+                R.string.settings_update_available,
+                state.release.tagName,
+            )
+            is AppUpdateState.Downloading -> stringResource(R.string.settings_update_downloading)
+            is AppUpdateState.ReadyToInstall -> stringResource(
+                R.string.settings_update_ready,
+                state.release.tagName,
+            )
+            is AppUpdateState.PermissionRequired -> stringResource(R.string.settings_update_permission)
+            is AppUpdateState.Error -> {
+                val message = stringResource(
+                    when (state.kind) {
+                        AppUpdateError.NETWORK -> R.string.settings_update_error_network
+                        AppUpdateError.NO_ASSET -> R.string.settings_update_error_asset
+                        AppUpdateError.INVALID_PACKAGE -> R.string.settings_update_error_package
+                        AppUpdateError.INSTALL_FAILED -> R.string.settings_update_error_install
+                    },
+                )
+                message + state.detail?.takeIf { it.isNotBlank() }?.let { ": $it" }.orEmpty()
+            }
+        }
+        MaaNavigationRow(
+            label = stringResource(
+                if (state is AppUpdateState.Checking) {
+                    R.string.settings_update_checking
+                } else {
+                    R.string.settings_update_check
+                },
+            ),
+            description = checkDescription,
+            onClick = {
+                if (state !is AppUpdateState.Checking && state !is AppUpdateState.Downloading) {
+                    onIntent(SettingsIntent.CheckAppUpdate)
+                }
+            },
+        )
+
+        when (state) {
+            is AppUpdateState.Available -> MaaNavigationRow(
+                label = stringResource(R.string.settings_update_download),
+                description = stringResource(R.string.settings_update_available, state.release.tagName),
+                onClick = { onIntent(SettingsIntent.DownloadAndInstall) },
+            )
+
+            is AppUpdateState.PermissionRequired -> MaaNavigationRow(
+                label = stringResource(R.string.settings_update_download),
+                description = stringResource(R.string.settings_update_permission),
+                onClick = { onIntent(SettingsIntent.DownloadAndInstall) },
+            )
+
+            is AppUpdateState.Downloading -> MaaNavigationRow(
+                label = stringResource(R.string.settings_update_downloading),
+                description = if (state.totalBytes > 0) {
+                    stringResource(
+                        R.string.settings_update_progress,
+                        Formatter.formatFileSize(context, state.downloadedBytes),
+                        Formatter.formatFileSize(context, state.totalBytes),
+                    )
+                } else {
+                    Formatter.formatFileSize(context, state.downloadedBytes)
+                },
+                onClick = {},
+            )
+
+            is AppUpdateState.ReadyToInstall -> MaaNavigationRow(
+                label = stringResource(R.string.settings_update_install),
+                description = stringResource(R.string.settings_update_ready, state.release.tagName),
+                onClick = { onIntent(SettingsIntent.DownloadAndInstall) },
+            )
+
+            else -> Unit
+        }
     }
 }

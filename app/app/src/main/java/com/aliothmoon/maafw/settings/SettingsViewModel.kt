@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.aliothmoon.maafw.config.UserConfigurationStore
 import com.aliothmoon.maafw.i18n.AppLocales
 import com.aliothmoon.maafw.privileged.PermissionGateway
+import com.aliothmoon.maafw.update.AppUpdateManager
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
@@ -20,7 +21,10 @@ class SettingsViewModel(
     private val permissionGateway: PermissionGateway,
     private val appSettings: AppSettingsGateway,
     private val userConfigurationStore: UserConfigurationStore,
+    private val appUpdateManager: AppUpdateManager,
 ) : ViewModel() {
+
+    val updateState = appUpdateManager.state
 
     private val baseState = combine(
         permissionGateway.state,
@@ -71,6 +75,14 @@ class SettingsViewModel(
 
             is SettingsIntent.SetAlasMirror -> viewModelScope.launch {
                 appSettings.setAlasMirror(intent.mirror)
+            }
+
+            SettingsIntent.CheckAppUpdate -> viewModelScope.launch {
+                appUpdateManager.checkForUpdates()
+            }
+
+            SettingsIntent.DownloadAndInstall -> viewModelScope.launch {
+                appUpdateManager.downloadAndInstall()
             }
         }
     }

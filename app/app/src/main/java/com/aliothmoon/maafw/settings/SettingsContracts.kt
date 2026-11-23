@@ -39,4 +39,8 @@ sealed interface SettingsIntent {
 
     /** 切换 ALAS 镜像档；落盘后下次启动全量重同步（确认弹窗在 Screen 侧） */
     data class SetAlasMirror(val mirror: AlasMirror) : SettingsIntent
+
+    data object CheckAppUpdate : SettingsIntent
+
+    data object DownloadAndInstall : SettingsIntent
 }

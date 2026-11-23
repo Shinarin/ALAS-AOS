@@ -1,5 +1,41 @@
 # Debug · 坑点记录
 
+## [2026-11-23] WebView 能渲染文件输入框不等于能选文件：必须接 `onShowFileChooser`
+
+- **现象**：ALAS WebUI「管理 → 导入 → 浏览文件/选择文件」点击完全无反应，页面与 WebSocket 都正常，也没有崩溃日志（issue #5）。
+- **根本原因**：Android WebView 不会像桌面浏览器一样自动弹出系统文件选择器。`AlasScreen` 只配置了 `WebViewClient`，未覆写 `WebChromeClient.onShowFileChooser`，所以 `<input type="file">` 的点击没有原生出口。
+- **解决方案**：用 `rememberLauncherForActivityResult(StartActivityForResult)` 调起 `FileChooserParams.createIntent()`，结果交给 `FileChooserParams.parseResult()` 后回传 `ValueCallback<Array<Uri>>`；同时处理重复请求、取消、启动失败和 WebView 销毁，保证回调恰好完成一次。真机验收以 DocumentsUI 打开且选中 JSON 后文件名回传为准；不要只靠本地单元测试替代这一平台边界。
+
+## [2026-11-23] 活动关卡缺失前的纯黑截图是伴生现象：先核对关卡名与上游地图目录
+
+- **现象**：点击挂机后游戏画面纯黑，日志先警告 `Received pure black screenshots`，随后 `Map file not found: campaign.event_20261022_cn.ht6`、`Request human takeover`，wrapper 每分钟重拉，表象像虚拟屏或截图桥失效。
+- **根本原因**：活动配置沿用了不存在的 `HT6`；上游官方该活动目录也只有 `sp、t1～t6`。ALAS 在拉起游戏前截图并导入地图，地图导入失败后直接请求人工接管，所以纯黑只是游戏尚未启动时的伴生现象，不是根因，也不能靠重烘 rootfs 或改桥修复。
+- **解决方案**：先 `/stop` 停掉自动重拉，在 ALAS WebUI 的活动图设置中选实际存在的关卡（本次改 `T6`），再启动并核对新进程日志中的 `Campaign run`。本次随后成功拉起并登录游戏；活动因已结束被上游自动禁用后，队列中的 2-4 正常连续出击。**遇到 `Map file not found` 先查当前 WebUI 值和上游同名活动目录，不要把「现有文件列表」误判成热更新不完整。**
+
+## [2026-10-26] JVM 单测 Android `org.json` 会假 null：新 JSON 解析优先用项目已有 kotlinx.serialization
+
+- **现象**：GitHub Release 解析的真机逻辑看似正确，但 JVM 测试 `optString()` 处 NullPointerException，缺资产测试也拿不到预期异常。
+- **根本原因**：本地 `testOptions.unitTests.isReturnDefaultValues=true` 的 Android.jar 桩让 `optString()` 返回 null，与设备真实 `org.json` 行为不同；不能拿它做 JSON 行为测试。
+- **解决方案**：新代码改用项目已有 `kotlinx.serialization.json`，生产与 JVM 测试共享真实解析实现，不新增依赖。Release 的 tag/assets 精确选择测试因此可真实 RED→GREEN，不为通过测试去兼容桩的 null。
+
+## [2026-10-26] 荣耀安全模式反复弹确认页：调起 PackageInstaller 不等于更新已安装
+
+- **现象**：更新 fixture 已下载并通过包名/versionCode/签名校验，PackageInstaller 也打开，但荣耀 `SafeModeBottomSheetActivity` 多轮出现，版本仍停留在 90，看似“返回确认页又重开”的循环。
+- **根本原因**：这是 ROM 额外的侧载确认流程，不能据 Activity 名称或“已调起安装器”推断安装完成，也不能用 ADB install 的结果冒充用户 UI 安装结果。
+- **解决方案**：验收以 `InstallSuccess` 页面和实际 `dumpsys package` 的 versionCode 为准；本轮由用户手动完成确认，最终 9.9.9/92。测试用独立 `.fixture` 包名隔离生产，结束卸载 fixture、关闭本地 HTTP 并删临时 APK。若后续再遇同类页面，先让用户完成系统确认，别连续机械点击或改全局安全设置。
+
+## [2026-10-26] GKD 自动点「跳过检查」：Shizuku 弹窗秒消失，还会把永久跳过重新写回 true
+
+- **现象**：用户关闭 Shizuku 后打开 ALAS-AOS 无提示；临时重置 `skip_shizuku_check=false` 后弹窗能出现，但很快又变回 true，干净包再次不弹。
+- **根本原因**：直接 Logcat 显示 `skipShizukuCheck()` 每约 0.5 秒被调用一次，readiness 在 `skip=true/false` 间反复变化；系统同时存在并启用 `li.songe.gkd` 无障碍服务与输入窗口。App 内该写 true 的唯一入口是弹窗左侧「跳过检查（不推荐）」按钮，频率与 GKD 自动点击规则吻合。也就是说，弹窗不是没出现，而是被自动点掉，并永久关闭后续提示。
+- **解决方案**：先在 GKD 中暂停服务或禁用 ALAS-AOS 相关规则，再重置 `skip_shizuku_check=false`，然后使用弹窗右侧「打开 Shizuku」。不要只反复重置 skip，否则会被再次写回 true。诊断用 Logcat/重置 hack 已全部撤回并重装干净 Release。用户随后自行关闭 GKD，重置后干净包弹窗稳定保留 10 秒以上，A/B 复验通过。若产品要求不受此类自动点击影响，应另行设计单次关闭或移除永久跳过，而不是保留诊断 hack。
+
+## [2026-10-26] Shizuku 明确未运行却不弹引导：先查持久化 `skipShizukuCheck`，别先修 readiness
+
+- **现象**：真机停止 `shizuku_server` 后，ALAS-AOS 挂机页已显示「特权进程：未连接 / 桥服务：不可达」，但等待 10+ 秒仍无「Shizuku 未启动」弹窗。
+- **根本原因**：设备历史点过「跳过检查（不推荐）」，`AppSettings.skipShizukuCheck=true` 被 DataStore 持久化；`PermissionManager.resolveReadiness` 第一分支直接 Ready，所以后续 NotRunning 探测根本不会执行。覆盖安装 APK 不会清这个设置，Clean Ready 也不能反证 skip=false。
+- **解决方案**：用同签名临时包只在 `resolveReadiness` 中把 skip 重置为 false（不卸载 Shizuku、不清 App 数据）；同一场景立即弹出正确提示，即确认是历史开关而非本次判定重构。临时代码随后撤回并重装干净包，测试机保留 skip=false。**排查顺序：先确认启动模式与 skip，再查 Shizuku binder / flavor / readiness；不要为了验收直接清数据或卸载 Shizuku。** 若产品要求任何情况下都提示，应另行移除「跳过检查」产品选项，而不是把测试 hack 留在代码里。
+
 ## [2026-10-22] 半自动点击（daemon）"不走图"不是故障：走图从来是游戏内置「自动寻敌」的活，新图没这个按钮就原地罚站
 
 - **现象**：用户报半自动点击在新活动图（轻量化复刻，限时倒计时+追猎迎击机制）上战后舰队原地不动；日志每战后刷 `No enemy searching in map.`，截图 78 秒两帧逐像素相同。

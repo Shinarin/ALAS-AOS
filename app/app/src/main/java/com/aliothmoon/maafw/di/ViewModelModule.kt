@@ -16,6 +16,6 @@ val viewModelModule = module {
     viewModelOf(::AlasErrorDetailViewModel)
 
     viewModel {
-        SettingsViewModel(get(), get(), get())
+        SettingsViewModel(get(), get(), get(), get())
     }
 }

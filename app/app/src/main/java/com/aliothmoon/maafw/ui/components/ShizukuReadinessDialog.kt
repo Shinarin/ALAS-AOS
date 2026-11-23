@@ -1,29 +1,13 @@
 package com.aliothmoon.maafw.ui.components
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Build
-import androidx.compose.material.icons.outlined.Download
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.WarningAmber
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import com.aliothmoon.maafw.R
 import com.aliothmoon.maafw.privileged.SHIZUKU_M_RELEASES_URL
-import com.aliothmoon.maafw.privileged.SHIZUKU_OFFICIAL_RELEASES_URL
 import com.aliothmoon.maafw.privileged.ShizukuReadiness
 import com.aliothmoon.maafw.privileged.ShizukuReadinessStage
 
@@ -50,30 +34,21 @@ fun ShizukuReadinessDialog(
     val switchToRootText = stringResource(R.string.dialog_shizuku_switch_to_root)
         .takeIf { readiness.canSwitchToRoot }
     val skipText = stringResource(R.string.dialog_shizuku_skip_check)
-    var showDownloadChooser by remember { mutableStateOf(false) }
 
     when (readiness.stage) {
-        ShizukuReadinessStage.NotInstalled -> {
-            MaaPromptDialog(
-                title = stringResource(R.string.dialog_shizuku_not_installed_title),
-                message = stringResource(R.string.dialog_shizuku_not_installed_message),
-                icon = Icons.Outlined.WarningAmber,
-                confirmText = stringResource(R.string.dialog_shizuku_go_download),
-                onConfirm = { showDownloadChooser = true },
-                secondaryText = stringResource(R.string.dialog_shizuku_install_confirm),
-                onSecondaryClick = onRecheck,
-                neutralText = switchToRootText,
-                onNeutralClick = onSwitchToRoot,
-                dismissText = skipText,
-                onDismissRequest = onDismiss,
-            )
-            if (showDownloadChooser) {
-                ShizukuDownloadDialog(
-                    onOpenUrl = onOpenUrl,
-                    onDismiss = { showDownloadChooser = false },
-                )
-            }
-        }
+        ShizukuReadinessStage.NotInstalled -> MaaPromptDialog(
+            title = stringResource(R.string.dialog_shizuku_not_installed_title),
+            message = stringResource(R.string.dialog_shizuku_not_installed_message),
+            icon = Icons.Outlined.WarningAmber,
+            confirmText = stringResource(R.string.dialog_shizuku_go_download),
+            onConfirm = { onOpenUrl(SHIZUKU_M_RELEASES_URL) },
+            secondaryText = stringResource(R.string.dialog_shizuku_install_confirm),
+            onSecondaryClick = onRecheck,
+            neutralText = switchToRootText,
+            onNeutralClick = onSwitchToRoot,
+            dismissText = skipText,
+            onDismissRequest = onDismiss,
+        )
 
         ShizukuReadinessStage.NotRunning -> MaaPromptDialog(
             title = stringResource(R.string.dialog_shizuku_not_running_title),
@@ -129,44 +104,4 @@ fun ShizukuReadinessDialog(
 
         ShizukuReadinessStage.Ready -> Unit
     }
-}
-
-/**
- * NotInstalled 档的下载源选择：两个地址都在 GitHub，列出来按用户网络环境自选；
- * 选中项经 [onOpenUrl] 交给系统浏览器，弹窗留在原地便于换源重试
- */
-@Composable
-private fun ShizukuDownloadDialog(
-    onOpenUrl: (String) -> Unit,
-    onDismiss: () -> Unit,
-) {
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        icon = { Icon(imageVector = Icons.Outlined.Download, contentDescription = null) },
-        title = { Text(stringResource(R.string.dialog_shizuku_download_title)) },
-        text = {
-            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                TextButton(onClick = { onOpenUrl(SHIZUKU_M_RELEASES_URL) }) {
-                    Text(
-                        stringResource(R.string.dialog_shizuku_download_mod),
-                        modifier = Modifier.fillMaxWidth(),
-                    )
-                }
-                TextButton(onClick = { onOpenUrl(SHIZUKU_OFFICIAL_RELEASES_URL) }) {
-                    Text(
-                        stringResource(R.string.dialog_shizuku_download_official),
-                        modifier = Modifier.fillMaxWidth(),
-                    )
-                }
-                Text(
-                    stringResource(R.string.dialog_shizuku_download_note),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
-        },
-        confirmButton = {
-            TextButton(onClick = onDismiss) { Text(stringResource(R.string.dialog_cancel)) }
-        },
-    )
 }
